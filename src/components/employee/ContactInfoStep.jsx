@@ -1,0 +1,202 @@
+// src/components/employee/steps/ContactInfoStep.jsx
+
+import React from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useCreateEmployeeContactInfo } from "@/hooks/useEmployees";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { indianStates } from "@/lib/constants";
+import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
+
+export const ContactInfoStep = ({ uuid, onSuccess }) => {
+  const { mutate: createContactInfo, isPending } =
+    useCreateEmployeeContactInfo();
+  const { register, handleSubmit, control } = useForm({
+    defaultValues: {
+      address: "",
+      city: "",
+      state: "",
+      // --- FIELD ADDED: Country is now included ---
+      country: "India",
+      postal_code: "",
+      emergency_contact: [
+        { name: "", type: "phone", value: "", relationship: "" },
+      ],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "emergency_contact",
+  });
+
+  const onSubmit = (data) => {
+    // Filter out emergency contacts where the name is empty
+    const cleanedData = {
+      ...data,
+      emergency_contact: data.emergency_contact.filter(
+        (contact) => contact.name && contact.name.trim() !== ""
+      ),
+    };
+
+    createContactInfo(
+      { uuid, ...cleanedData },
+      {
+        onSuccess: () => {
+          toast.success("Contact info saved successfully!");
+          onSuccess();
+        },
+        onError: (err) =>
+          toast.error(
+            err.response?.data?.message || "Failed to save contact info."
+          ),
+      }
+    );
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="address">Full Address</Label>
+        <Input
+          id="address"
+          {...register("address", { required: "Address is required." })}
+          placeholder="e.g., 123 MG Road, Near Central Mall"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="city">City</Label>
+          <Input
+            id="city"
+            {...register("city", { required: "City is required." })}
+            placeholder="e.g., Bangalore"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>State</Label>
+          <Controller
+            name="state"
+            control={control}
+            rules={{ required: "State is required." }}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select state..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {indianStates.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="postal_code">Postal Code</Label>
+          <Input
+            id="postal_code"
+            {...register("postal_code", {
+              required: "Postal code is required.",
+            })}
+            placeholder="e.g., 560001"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="country">Country</Label>
+          <Input
+            id="country"
+            {...register("country")}
+            readOnly
+            className="bg-muted/50 cursor-not-allowed"
+            value="India"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label>Emergency Contacts</Label>
+        <div className="space-y-3 mt-2">
+          {fields.map((item, index) => (
+            <div
+              key={item.id}
+              className="grid grid-cols-1 sm:grid-cols-10 gap-2 items-center p-4 border rounded-lg bg-muted/50"
+            >
+              <Input
+                placeholder="Name"
+                {...register(`emergency_contact.${index}.name`)}
+                className="col-span-10 sm:col-span-3"
+              />
+              <Controller
+                name={`emergency_contact.${index}.type`}
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="col-span-10 sm:col-span-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="phone">Phone</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <Input
+                placeholder="Contact Value (Phone or Email)"
+                {...register(`emergency_contact.${index}.value`)}
+                className="col-span-10 sm:col-span-3"
+              />
+              <Input
+                placeholder="Relationship"
+                {...register(`emergency_contact.${index}.relationship`)}
+                className="col-span-10 sm:col-span-2"
+              />
+              <div className="col-span-10 sm:col-span-1 flex justify-end">
+                {fields.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => remove(index)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              append({ name: "", type: "phone", value: "", relationship: "" })
+            }
+          >
+            Add Another Contact
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex justify-end pt-6">
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Saving..." : "Save & Next"}
+        </Button>
+      </div>
+    </form>
+  );
+};
