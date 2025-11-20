@@ -36,38 +36,49 @@ export const JobDetailsTab = ({ employee }) => {
 
   const { mutate: updateJobDetails, isPending } = useUpdateEmployeeJobDetails();
 
-  const { register, handleSubmit, control, watch } = useForm({
-    defaultValues: {
-      employee_code: employment.code,
-      company_id: String(employment.company?.id),
-      department_id: String(employment.department?.id),
-      designation_id: String(employment.designation?.id),
-      status: employment.status,
-      type: employment.type,
-      joining_date: employment.joining_date
-        ? new Date(employment.joining_date).toISOString().split("T")[0]
-        : "",
-      confirmation_date: employment.confirmation_date
-        ? new Date(employment.confirmation_date).toISOString().split("T")[0]
-        : "",
-      resignation_date: employment.resignation_date
-        ? new Date(employment.resignation_date).toISOString().split("T")[0]
-        : "",
-      termination_date: employment.termination_date
-        ? new Date(employment.termination_date).toISOString().split("T")[0]
-        : "",
-      last_working_date: employment.last_working_date
-        ? new Date(employment.last_working_date).toISOString().split("T")[0]
-        : "",
-      reason_for_leaving: employment.reason_for_leaving,
-      office_email: employee.email,
-      office_phone_no: employee.phone_no,
-      leave_policy_id: String(employment.leave_policy?.id),
-      shift_id: String(employment.shift?.id),
-      reporting_to: String(employment.reporting_to?.id),
-      roles: employee.roles?.filter(Boolean).map((r) => String(r.id)) || [],
-    },
+  // Get initial values from employee data
+  const getInitialValues = () => ({
+    employee_code: employment?.code || "",
+    company_id: String(employment?.company?.id || ""),
+    department_id: String(employment?.department?.id || ""),
+    designation_id: String(employment?.designation?.id || ""),
+    status: employment?.status || "",
+    type: employment?.type || "",
+    joining_date: employment?.joining_date
+      ? new Date(employment.joining_date).toISOString().split("T")[0]
+      : "",
+    confirmation_date: employment?.confirmation_date
+      ? new Date(employment.confirmation_date).toISOString().split("T")[0]
+      : "",
+    resignation_date: employment?.resignation_date
+      ? new Date(employment.resignation_date).toISOString().split("T")[0]
+      : "",
+    termination_date: employment?.termination_date
+      ? new Date(employment.termination_date).toISOString().split("T")[0]
+      : "",
+    last_working_date: employment?.last_working_date
+      ? new Date(employment.last_working_date).toISOString().split("T")[0]
+      : "",
+    reason_for_leaving: employment?.reason_for_leaving || "",
+    office_email: employee?.email || "",
+    office_phone_no: employee?.phone_no || "",
+    leave_policy_id: String(employment?.leave_policy?.id || ""),
+    shift_id: String(employment?.shift?.id || ""),
+    reporting_to: String(employment?.reporting_to?.id || ""),
+    roles: employee?.roles?.map((r) => String(r)) || [],
   });
+
+  const { register, handleSubmit, control, watch, reset } = useForm({
+    defaultValues: getInitialValues(),
+  });
+
+  // Reset form when employee data changes
+  React.useEffect(() => {
+    if (employee && employment) {
+      const formData = getInitialValues();
+      reset(formData);
+    }
+  }, [employee, employment, reset]);
 
   const selectedCompany = watch("company_id");
   const selectedDepartment = watch("department_id");
@@ -91,7 +102,7 @@ export const JobDetailsTab = ({ employee }) => {
       leave_policy_id: Number(data.leave_policy_id),
       shift_id: Number(data.shift_id),
       reporting_to: data.reporting_to ? Number(data.reporting_to) : null,
-      roles: data.roles ? data.roles.map(Number) : [],
+      roles: data.roles || [],
       confirmation_date:
         data.status === "confirmed" ? data.confirmation_date : null,
       resignation_date:
@@ -353,7 +364,7 @@ export const JobDetailsTab = ({ employee }) => {
                   <MultiSelect
                     options={
                       roles?.data?.roles.map((r) => ({
-                        value: String(r.id),
+                        value: r.name,
                         label: r.name,
                       })) || []
                     }

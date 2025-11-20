@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useUpdateEmployeeContactInfo } from "@/hooks/useEmployees";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,38 +20,37 @@ import {
 } from "@/components/ui/select";
 import { indianStates } from "@/lib/constants";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
 
 export const ContactInfoTab = ({ employee }) => {
   const { mutate: updateContactInfo, isPending } =
     useUpdateEmployeeContactInfo();
-  const { register, handleSubmit, control, reset } = useForm();
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "emergency_contact",
+  const { register, handleSubmit, control, reset } = useForm({
+    defaultValues: {
+      address: employee?.profile?.address || "",
+      city: employee?.profile?.city || "",
+      state: employee?.profile?.state || "",
+      country: employee?.profile?.country || "",
+      postal_code: employee?.profile?.postal_code || "",
+    },
   });
 
+  // Reset form when employee data changes
   useEffect(() => {
-    reset({
-      address: employee.profile.address,
-      city: employee.profile.city,
-      state: employee.profile.state,
-      country: employee.profile.country,
-      postal_code: employee.profile.postal_code,
-      emergency_contact: employee.emergency_contacts || [
-        { name: "", type: "phone", value: "", relationship: "" },
-      ],
-    });
+    if (employee) {
+      reset({
+        address: employee.profile?.address || "",
+        city: employee.profile?.city || "",
+        state: employee.profile?.state || "",
+        country: employee.profile?.country || "",
+        postal_code: employee.profile?.postal_code || "",
+      });
+    }
   }, [employee, reset]);
 
   const onSubmit = (data) => {
-    const payload = {
-      ...data,
-      emergency_contact: data.emergency_contact.filter((c) => c.name),
-    };
     updateContactInfo(
-      { employeeId: employee.id, data: payload },
+      { employeeId: employee.id, data },
       {
         onSuccess: () => toast.success("Contact info updated successfully!"),
         onError: (err) =>
@@ -65,7 +64,7 @@ export const ContactInfoTab = ({ employee }) => {
       <CardHeader>
         <CardTitle>Contact Information</CardTitle>
         <CardDescription>
-          Update the employee's address and emergency contacts.
+          Update the employee's address information.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -112,76 +111,6 @@ export const ContactInfoTab = ({ employee }) => {
                 readOnly
                 className="bg-muted/50"
               />
-            </div>
-          </div>
-          <div>
-            <Label>Emergency Contacts</Label>
-            <div className="space-y-3 mt-2">
-              {fields.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="grid grid-cols-1 sm:grid-cols-10 gap-2 items-center p-4 border rounded-lg bg-muted/50"
-                >
-                  <Input
-                    placeholder="Name"
-                    {...register(`emergency_contact.${index}.name`)}
-                    className="col-span-10 sm:col-span-3"
-                  />
-                  <Controller
-                    name={`emergency_contact.${index}.type`}
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="col-span-10 sm:col-span-2 w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="phone">Phone</SelectItem>
-                          <SelectItem value="email">Email</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  <Input
-                    placeholder="Contact Value"
-                    {...register(`emergency_contact.${index}.value`)}
-                    className="col-span-10 sm:col-span-3"
-                  />
-                  <Input
-                    placeholder="Relationship"
-                    {...register(`emergency_contact.${index}.relationship`)}
-                    className="col-span-10 sm:col-span-2"
-                  />
-                  <div className="col-span-10 sm:col-span-1 flex justify-end">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  append({
-                    name: "",
-                    type: "phone",
-                    value: "",
-                    relationship: "",
-                  })
-                }
-              >
-                Add Contact
-              </Button>
             </div>
           </div>
           <div className="flex justify-end pt-4">

@@ -32,6 +32,7 @@ const EmployeeHeader = ({ employee }) => {
         </Avatar>
         <div className="text-center sm:text-left">
           <h2 className="text-2xl font-bold">{fullName}</h2>
+          <p className="text-muted-foreground">{employee?.username}</p>
           <p className="text-muted-foreground">{employee?.email}</p>
           <p className="text-muted-foreground">
             {employment?.designation?.name || "N/A"} at{" "}

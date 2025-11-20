@@ -26,26 +26,31 @@ export const PersonalInfoTab = ({ employee }) => {
   const { mutate: updatePersonalInfo, isPending } =
     useUpdateEmployeePersonalInfo();
 
-  // Destructure 'control' and 'reset' for controlled components and form updates
-  const { register, handleSubmit, control, reset } = useForm();
+  // Get initial values from employee data
+  const getInitialValues = () => ({
+    first_name: employee?.profile?.first_name || "",
+    middle_name: employee?.profile?.middle_name || "",
+    last_name: employee?.profile?.last_name || "",
+    date_of_birth: employee?.profile?.date_of_birth
+      ? new Date(employee.profile.date_of_birth).toISOString().split("T")[0]
+      : "",
+    gender: employee?.profile?.gender || "",
+    marital_status: employee?.profile?.marital_status || "",
+    blood_group: employee?.profile?.blood_group?.toUpperCase() || "",
+    personal_email: employee?.email || "",
+    personal_phone_no: employee?.phone_no || "",
+  });
 
-  // This useEffect ensures the form is repopulated if the user navigates
-  // between different employee pages without a full page reload.
+  // Initialize form with default values
+  const { register, handleSubmit, control, reset } = useForm({
+    defaultValues: getInitialValues(),
+  });
+
+  // Reset form when employee data changes
   useEffect(() => {
     if (employee) {
-      reset({
-        first_name: employee.profile.first_name,
-        middle_name: employee.profile.middle_name || "",
-        last_name: employee.profile.last_name,
-        date_of_birth: employee.profile.date_of_birth
-          ? new Date(employee.profile.date_of_birth).toISOString().split("T")[0]
-          : "",
-        gender: employee.profile.gender,
-        marital_status: employee.profile.marital_status,
-        blood_group: employee.profile.blood_group,
-        personal_email: employee.email,
-        personal_phone_no: employee.phone_no,
-      });
+      const formData = getInitialValues();
+      reset(formData);
     }
   }, [employee, reset]);
 
@@ -156,7 +161,7 @@ export const PersonalInfoTab = ({ employee }) => {
                     </SelectTrigger>
                     <SelectContent>
                       {bloodGroups.map((bg) => (
-                        <SelectItem key={bg} value={bg.toLowerCase()}>
+                        <SelectItem key={bg} value={bg}>
                           {bg}
                         </SelectItem>
                       ))}

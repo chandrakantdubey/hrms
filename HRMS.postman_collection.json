@@ -1,0 +1,3315 @@
+{
+	"info": {
+		"_postman_id": "7738f909-f7f1-472a-bba3-e213bfd26ea5",
+		"name": "HRMS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49516606"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const responseJson = pm.response.json();\r",
+									"    if (responseJson && responseJson.token) {\r",
+									"        pm.collectionVariables.set(\"login_token\", responseJson.token);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"superadmin@hrms.com\",\r\n    \"password\": \"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/login",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const responseJson = pm.response.json();\r",
+									"    if (responseJson && responseJson.token) {\r",
+									"        pm.collectionVariables.set(\"login_token\", responseJson.token);\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/api/v1/logout",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Masters",
+			"item": [
+				{
+					"name": "Roles",
+					"item": [
+						{
+							"name": "Get Roles",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/roles",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"roles"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "0",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store Roles",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\",\r\n    \"permissions\" : [\"view roles\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/roles",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"roles"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Roles",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"hr\",\r\n    \"permissions\": [\r\n        \"view roles\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/roles/:roleId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"roles",
+										":roleId"
+									],
+									"variable": [
+										{
+											"key": "roleId",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Role",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/roles/:roleId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"roles",
+										":roleId"
+									],
+									"variable": [
+										{
+											"key": "roleId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Role",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/roles/:roleId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"roles",
+										":roleId"
+									],
+									"variable": [
+										{
+											"key": "roleId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Permissions",
+					"item": [
+						{
+							"name": "Get Permissions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/permissions",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"permissions"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "0",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store Permissions",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/permissions",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"permissions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Permissions",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"hr\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/permissions/:permissionId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"permissions",
+										":permissionId"
+									],
+									"variable": [
+										{
+											"key": "permissionId",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Permission",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/permissions/:permissionId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"permissions",
+										":permissionId"
+									],
+									"variable": [
+										{
+											"key": "permissionId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Permission",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/permissions/:permissionId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"permissions",
+										":permissionId"
+									],
+									"variable": [
+										{
+											"key": "permissionId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Companies",
+					"item": [
+						{
+							"name": "Get Companies",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/companies",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"companies"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "0",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store Company",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Acme Corporation",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "info12@acme.com",
+											"type": "text"
+										},
+										{
+											"key": "phone_no",
+											"value": "+1-800-123-4567",
+											"type": "text"
+										},
+										{
+											"key": "website",
+											"value": "https://www.acme.com",
+											"type": "text"
+										},
+										{
+											"key": "address",
+											"value": "123 Business Park Tech City USA",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "A leading provider of fictional industrial products and services.",
+											"type": "text"
+										},
+										{
+											"key": "established_date",
+											"value": "2001-04-15",
+											"type": "text"
+										},
+										{
+											"key": "logo",
+											"type": "file",
+											"src": "postman-cloud:///1efeaa78-f3bb-4e70-91cf-b468ee999f0a"
+										},
+										{
+											"key": "parent_id",
+											"value": "1",
+											"type": "text",
+											"disabled": true
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/companies",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"companies"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Company",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Acme Corporation",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "info1@acme.com",
+											"type": "text"
+										},
+										{
+											"key": "phone_no",
+											"value": "+1-800-123-4567",
+											"type": "text"
+										},
+										{
+											"key": "website",
+											"value": "https://www.acme.com",
+											"type": "text"
+										},
+										{
+											"key": "address",
+											"value": "123 Business Park Tech City USA",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "A leading provider of fictional industrial products and services.",
+											"type": "text"
+										},
+										{
+											"key": "established_date",
+											"value": "2001-04-15",
+											"type": "text"
+										},
+										{
+											"key": "logo",
+											"type": "file",
+											"src": "postman-cloud:///1efeaa78-f3bb-4e70-91cf-b468ee999f0a"
+										},
+										{
+											"key": "parent_id",
+											"value": "1",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "_method",
+											"value": "PUT",
+											"description": "// this attribute is mandatory",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/companies/:companyId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"companies",
+										":companyId"
+									],
+									"variable": [
+										{
+											"key": "companyId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Company",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/companies/:companyId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"companies",
+										":companyId"
+									],
+									"variable": [
+										{
+											"key": "companyId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Company",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/companies/:companyId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"companies",
+										":companyId"
+									],
+									"variable": [
+										{
+											"key": "companyId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Departments",
+					"item": [
+						{
+							"name": "Get Departments",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/departments",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"departments"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "0",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store  Department",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\",\r\n    \"code\": \"HR\",\r\n    \"description\" : \"jkebsd\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/departments",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"departments"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update  Department",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\",\r\n    \"code\": \"HR\",\r\n    \"description\" : \"jkebsd\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/departments/:departmentId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"departments",
+										":departmentId"
+									],
+									"variable": [
+										{
+											"key": "departmentId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch  Department",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/departments/:departmentId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"departments",
+										":departmentId"
+									],
+									"variable": [
+										{
+											"key": "departmentId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Department",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/departments/:departmentId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"departments",
+										":departmentId"
+									],
+									"variable": [
+										{
+											"key": "departmentId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Designations",
+					"item": [
+						{
+							"name": "Get Designations",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/designations",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"designations"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "0",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store  Designation",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\",\r\n    \"description\" : \"jkebsd\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/designations",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"designations"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update  Designation",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\",\r\n    \"description\" : \"jkebsd\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/designations/:designationId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"designations",
+										":designationId"
+									],
+									"variable": [
+										{
+											"key": "designationId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch  Designation",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/designations/:designationId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"designations",
+										":designationId"
+									],
+									"variable": [
+										{
+											"key": "designationId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Designation",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/designations/:designationId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"designations",
+										":designationId"
+									],
+									"variable": [
+										{
+											"key": "designationId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Leave Types",
+					"item": [
+						{
+							"name": "Get Leave Types",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n                \"name\": \"Casual Leave\",\r\n                \"code\": \"CL\",\r\n                \"description\": \"Personal or unforeseen reasons\"\r\n            }"
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-types",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store Leave Type",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Casual Leave\",\r\n    \"code\": \"CL\",\r\n    \"description\": \"Personal or unforeseen reasons\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-types",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Leave Type",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\",\r\n    \"code\": \"HR\",\r\n    \"description\" : \"jkebsd\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-types/:leaveTypeId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-types",
+										":leaveTypeId"
+									],
+									"variable": [
+										{
+											"key": "leaveTypeId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Leave Type",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\",\r\n    \"code\": \"HR\",\r\n    \"description\" : \"jkebsd\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-types/:leaveTypeId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-types",
+										":leaveTypeId"
+									],
+									"variable": [
+										{
+											"key": "leaveTypeId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Leave Type",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-types/:leaveTypeId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-types",
+										":leaveTypeId"
+									],
+									"variable": [
+										{
+											"key": "leaveTypeId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Holidays",
+					"item": [
+						{
+							"name": "Get Holidays",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/holidays",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"holidays"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "0",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store Holiday",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Independence Day\",\r\n    \"date\": \"2025-07-04\",\r\n    \"description\": \"National holiday commemorating independence.\",\r\n    \"is_public\": true,\r\n    \"is_optional\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/holidays",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"holidays"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Holiday",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Independence Day\",\r\n    \"date\": \"2025-07-04\",\r\n    \"description\": \"National holiday commemorating independence.\",\r\n    \"is_public\": true,\r\n    \"is_optional\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/holidays/:holidayId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"holidays",
+										":holidayId"
+									],
+									"variable": [
+										{
+											"key": "holidayId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Holiday",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/holidays/:holidayId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"holidays",
+										":holidayId"
+									],
+									"variable": [
+										{
+											"key": "holidayId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Holiday",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/holidays/:holidayId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"holidays",
+										":holidayId"
+									],
+									"variable": [
+										{
+											"key": "holidayId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Document Types",
+					"item": [
+						{
+							"name": "Get Document Types",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n                \"name\": \"Casual Leave\",\r\n                \"code\": \"CL\",\r\n                \"description\": \"Personal or unforeseen reasons\"\r\n            }"
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/document-types",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"document-types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store Document Type",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Employment Contract\",\r\n    \"description\": \"A standard employment agreement document.\",\r\n    \"is_mandatory\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/document-types",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"document-types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Document Type",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Employment Contract\",\r\n    \"description\": \"A standard employment agreement document.\",\r\n    \"is_mandatory\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/document-types/:documentTypeId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"document-types",
+										":documentTypeId"
+									],
+									"variable": [
+										{
+											"key": "documentTypeId",
+											"value": "6"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Document Type",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\" : \"hr manager 2\",\r\n    \"code\": \"HR\",\r\n    \"description\" : \"jkebsd\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/document-types/:documentTypeId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"document-types",
+										":documentTypeId"
+									],
+									"variable": [
+										{
+											"key": "documentTypeId",
+											"value": "6"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Document Type",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/document-types/:documentTypeId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"document-types",
+										":documentTypeId"
+									],
+									"variable": [
+										{
+											"key": "documentTypeId",
+											"value": "6"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Leave Policies",
+					"item": [
+						{
+							"name": "Get Leave Policies",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n                \"name\": \"Casual Leave\",\r\n                \"code\": \"CL\",\r\n                \"description\": \"Personal or unforeseen reasons\"\r\n            }"
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-policies",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-policies"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store Leave Policy",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Annual Leave\",\r\n  \"description\": \"Leave allocated annually for employees\",\r\n  \"allocation_frequency\": \"yearly\",\r\n  \"alloted_leaves\": 12,\r\n  \"total_leaves_in_year\": 15,\r\n  \"is_carry_forward\": true,\r\n  \"no_of_public_holidays\": 10,\r\n  \"no_of_optional_holidays\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-policies",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-policies"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Leave Policy",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Annual Leave\",\r\n  \"description\": \"Leave allocated annually for employees\",\r\n  \"allocation_frequency\": \"yearly\",\r\n  \"alloted_leaves\": 12,\r\n  \"total_leaves_in_year\": 15,\r\n  \"is_carry_forward\": true,\r\n  \"no_of_public_holidays\": 10,\r\n  \"no_of_optional_holidays\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-policies/:leavePolicyId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-policies",
+										":leavePolicyId"
+									],
+									"variable": [
+										{
+											"key": "leavePolicyId",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Leave Policy",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-policies/:leavePolicyId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-policies",
+										":leavePolicyId"
+									],
+									"variable": [
+										{
+											"key": "leavePolicyId",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Leave Policy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/leave-policies/:leavePolicyId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"leave-policies",
+										":leavePolicyId"
+									],
+									"variable": [
+										{
+											"key": "leavePolicyId",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Shifts",
+					"item": [
+						{
+							"name": "Get Shifts",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n                \"name\": \"Casual Leave\",\r\n                \"code\": \"CL\",\r\n                \"description\": \"Personal or unforeseen reasons\"\r\n            }"
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/shifts",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"shifts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Store Shift",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Morning Shift\",\r\n  \"description\": \"Shift from morning till afternoon\",\r\n  \"start_time\": \"09:00\",\r\n  \"end_time\": \"17:00\",\r\n  \"grace_time\": \"09:15\",\r\n  \"working_days\": [1, 2, 3, 4, 5]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/shifts",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"shifts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Shift",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Morning Shift\",\r\n  \"description\": \"Shift from morning till afternoon\",\r\n  \"start_time\": \"09:00\",\r\n  \"end_time\": \"17:00\",\r\n  \"grace_time\": \"09:15\",\r\n  \"working_days\": [1, 2, 3, 4, 5]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/shifts/:shiftId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"shifts",
+										":shiftId"
+									],
+									"variable": [
+										{
+											"key": "shiftId",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Fetch Shift",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/shifts/:shiftId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"shifts",
+										":shiftId"
+									],
+									"variable": [
+										{
+											"key": "shiftId",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Shift",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/masters/shifts/:shiftId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"masters",
+										"shifts",
+										":shiftId"
+									],
+									"variable": [
+										{
+											"key": "shiftId",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Permission Groups",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/masters/permission-groups",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"masters",
+								"permission-groups"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{login_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Employees",
+			"item": [
+				{
+					"name": "Create",
+					"item": [
+						{
+							"name": "Step 1 - Personal Info",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Tests tab\r",
+											"if (pm.response.code === 200 || pm.response.code === 201) {\r",
+											"  let jsonData = pm.response.json();\r",
+											"  if (jsonData.success && jsonData.data && jsonData.data.uuid) {\r",
+											"    pm.collectionVariables.set(\"employee_uuid\", jsonData.data.uuid);\r",
+											"    console.log(\"UUID saved:\", jsonData.data.uuid);\r",
+											"  }\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"first_name\": \"Arjun\",\r\n  \"middle_name\": \"Raj\",\r\n  \"last_name\": \"Singh\",\r\n  \"date_of_birth\": \"1992-08-23\",\r\n  \"gender\": \"m\",\r\n  \"marital_status\": \"single\",\r\n  \"blood_group\": \"b+\",\r\n  \"personal_email\": \"arjun.singh@company.in\",\r\n  \"personal_phone_no\": \"+919876543210\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/personal-info",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"personal-info"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 2 - Job Details",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"uuid\": \"{{employee_uuid}}\",\r\n    \"employee_code\": 2246,\r\n    \"company_id\": 1,\r\n    \"designation_id\": 1,\r\n    \"department_id\": 1,\r\n    \"status\": \"confirmed\",\r\n    \"type\": \"full_time\",\r\n    \"joining_date\": \"2023-01-15\",\r\n    \"confirmation_date\": \"2023-08-01\",\r\n    \"resignation_date\": null,\r\n    \"termination_date\": null,\r\n    \"last_working_date\": null,\r\n    \"reason_for_leaving\": null,\r\n    \"office_email\": \"arjun.singh@company.in\",\r\n    \"office_phone_no\": \"+911234567890\",\r\n    \"leave_policy_id\": 1,\r\n    \"shift_id\": 1,\r\n    \"reporting_to\": 1,\r\n    \"roles\": [\r\n        2\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/job-details",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"job-details"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 3 - Contact Info",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"uuid\": \"{{employee_uuid}}\",\r\n    \"address\": \"123 MG Road, Near Central Mall\",\r\n    \"city\": \"Bangalore\",\r\n    \"state\": \"Karnataka\",\r\n    \"country\": \"India\",\r\n    \"postal_code\": \"560001\",\r\n    \"emergency_contact\": [\r\n        {\r\n            \"name\" : \"Test\",\r\n            \"type\": \"email\",\r\n            \"value\": \"mom.singh@example.com\",\r\n            \"relationship\": \"mother\"\r\n        },\r\n        {\r\n            \"name\" : \"Test\",\r\n            \"type\": \"phone\",\r\n            \"value\": \"+917045127034\",\r\n            \"relationship\": \"brother\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/contact-info",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"contact-info"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 4 - Bank Info",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"uuid\": \"{{employee_uuid}}\",\r\n  \"aadhaar_no\": \"123412341234\",\r\n  \"pan_no\": \"ABCDE1234F\",\r\n  \"uan_no\": \"987654321012\",\r\n  \"bank_account_no\": \"01234567890123456789\",\r\n  \"ifsc_code\": \"HDFC0001234\",\r\n  \"bank_name\": \"HDFC Bank\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/bank-info",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"bank-info"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Step 5 - Complete With Document",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"uuid\": \"{{employee_uuid}}\",\r\n    \"documents\": [\r\n        {\r\n            \"type_id\": 1,\r\n            \"document_id\": 1\r\n        },\r\n        {\r\n            \"type_id\": 2,\r\n            \"document_id\": 2\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/complete",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"complete"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Update",
+					"item": [
+						{
+							"name": "Personal Info",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"first_name\": \"Arjun Iyer\",\r\n  \"middle_name\": \"Raj\",\r\n  \"last_name\": \"Singh\",\r\n  \"date_of_birth\": \"1992-08-22\",\r\n  \"gender\": \"m\",\r\n  \"marital_status\": \"single\",\r\n  \"blood_group\": \"b+\",\r\n  \"personal_email\": \"arjun.singh@company.in\",\r\n  \"personal_phone_no\": \"+919876543210\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/:employeeId/personal-info",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										":employeeId",
+										"personal-info"
+									],
+									"variable": [
+										{
+											"key": "employeeId",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Job Details",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"uuid\": \"be0faa01-b545-4a51-b915-734bfb036c07\",\r\n    \"employee_code\": 2246,\r\n    \"company_id\": 1,\r\n    \"designation_id\": 1,\r\n    \"department_id\": 1,\r\n    \"status\": \"confirmed\",\r\n    \"type\": \"full_time\",\r\n    \"joining_date\": \"2023-01-15\",\r\n    \"confirmation_date\": \"2023-08-01\",\r\n    \"resignation_date\": null,\r\n    \"termination_date\": null,\r\n    \"last_working_date\": null,\r\n    \"reason_for_leaving\": null,\r\n    \"office_email\": \"arjun.singh@company.in\",\r\n    \"office_phone_no\": \"+911234567890\",\r\n    \"leave_policy_id\": 1,\r\n    \"shift_id\": 1,\r\n    \"reporting_to\": 1,\r\n    \"roles\": [\r\n        2\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/:employeeId/job-details",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										":employeeId",
+										"job-details"
+									],
+									"variable": [
+										{
+											"key": "employeeId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Contact Info",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"uuid\": \"be0faa01-b545-4a51-b915-734bfb036c07\",\r\n    \"address\": \"123 MG Road, Near Central Mall\",\r\n    \"city\": \"Bangalore\",\r\n    \"state\": \"Karnataka\",\r\n    \"country\": \"India\",\r\n    \"postal_code\": \"560001\",\r\n    \"emergency_contact\": [\r\n        {\r\n            \"name\" : \"Test\",\r\n            \"type\": \"email\",\r\n            \"value\": \"mom.singh@example.com\",\r\n            \"relationship\": \"mother\"\r\n        },\r\n        {\r\n            \"name\" : \"Test\",\r\n            \"type\": \"phone\",\r\n            \"value\": \"+917045127034\",\r\n            \"relationship\": \"brother\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/:employeeId/contact-info",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										":employeeId",
+										"contact-info"
+									],
+									"variable": [
+										{
+											"key": "employeeId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Bank Info",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"uuid\": \"be0faa01-b545-4a51-b915-734bfb036c07\",\r\n  \"aadhaar_no\": \"123412341234\",\r\n  \"pan_no\": \"ABCDE1234F\",\r\n  \"uan_no\": \"987654321012\",\r\n  \"bank_account_no\": \"01234567890123456789\",\r\n  \"ifsc_code\": \"HDFC0001234\",\r\n  \"bank_name\": \"HDFC Bank\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/:employeeId/bank-info",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										":employeeId",
+										"bank-info"
+									],
+									"variable": [
+										{
+											"key": "employeeId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Attendance Requests",
+					"item": [
+						{
+							"name": "Emoloyees Attendance Requests",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/attendance-requests",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"attendance-requests"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Approve Attendance Request",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/:employeeId/attendance-requests/:requestId/approve",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										":employeeId",
+										"attendance-requests",
+										":requestId",
+										"approve"
+									],
+									"variable": [
+										{
+											"key": "employeeId",
+											"value": ""
+										},
+										{
+											"key": "requestId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Reject Attendance Request",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/:employeeId/attendance-requests/:requestId/reject",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										":employeeId",
+										"attendance-requests",
+										":requestId",
+										"reject"
+									],
+									"variable": [
+										{
+											"key": "employeeId",
+											"value": ""
+										},
+										{
+											"key": "requestId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Leave Requests",
+					"item": [
+						{
+							"name": "Employees Leave Requests",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/leave-requests",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"leave-requests"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Approve Leave Request",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/:employeeId/leave-requests/:requestId/approve",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										":employeeId",
+										"leave-requests",
+										":requestId",
+										"approve"
+									],
+									"variable": [
+										{
+											"key": "employeeId",
+											"value": ""
+										},
+										{
+											"key": "requestId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Reject Attendance Request Copy",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/:employeeId/leave-requests/:requestId/reject",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										":employeeId",
+										"leave-requests",
+										":requestId",
+										"reject"
+									],
+									"variable": [
+										{
+											"key": "employeeId",
+											"value": ""
+										},
+										{
+											"key": "requestId",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Payrolls",
+					"item": [
+						{
+							"name": "Get Payrolls",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/payrolls?month=7&year=2025",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"payrolls"
+									],
+									"query": [
+										{
+											"key": "month",
+											"value": "7"
+										},
+										{
+											"key": "year",
+											"value": "2025"
+										},
+										{
+											"key": "limi",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Payrolls",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "month",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "year",
+											"value": "2025",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/payrolls/upload",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"payrolls",
+										"upload"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Payroll",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "month",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "year",
+											"value": "2025",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/BarathanSelvan/Downloads/Payroll Template.xlsx"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base-url}}/api/v1/employees/payrolls/:payrollId",
+									"host": [
+										"{{base-url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"employees",
+										"payrolls",
+										":payrollId"
+									],
+									"variable": [
+										{
+											"key": "payrollId",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{login_token}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Employees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/employees",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"employees"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch  Employee",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/employees/:employeeId",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								":employeeId"
+							],
+							"variable": [
+								{
+									"key": "employeeId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete  Employee",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/employees/:employeeId",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								":employeeId"
+							],
+							"variable": [
+								{
+									"key": "employeeId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save Document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"document_id\" : 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/employees/:employeeId/documents/:documentTypeId",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								":employeeId",
+								"documents",
+								":documentTypeId"
+							],
+							"variable": [
+								{
+									"key": "employeeId",
+									"value": "2"
+								},
+								{
+									"key": "documentTypeId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Employees Import",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/SunilKYadav/OneDrive - Anvis Digital Pvt Ltd/Documents/employees.xlsx"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/employees/employees/import",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"employees",
+								"employees",
+								"import"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{login_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "My Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/user/roles",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/user/permissions",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/user/profile",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Check In",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_in_time\" : \"11:56:27\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/user/check-in",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"check-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Check Out",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check_out_time\": \"11:56:27\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/user/check-out",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"check-out"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My Payrolls",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : 50,\r\n    \"new_name\" : \"Green Apple\" \r\n}"
+						},
+						"url": {
+							"raw": "{{base-url}}/api/{{api-version}}/user/payrolls",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"{{api-version}}",
+								"user",
+								"payrolls"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My Payroll By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : 50,\r\n    \"new_name\" : \"Green Apple\" \r\n}"
+						},
+						"url": {
+							"raw": "{{base-url}}/api/{{api-version}}/user/payrolls/:payrollId",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"{{api-version}}",
+								"user",
+								"payrolls",
+								":payrollId"
+							],
+							"variable": [
+								{
+									"key": "payrollId",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My Reportees",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : 50,\r\n    \"new_name\" : \"Green Apple\" \r\n}"
+						},
+						"url": {
+							"raw": "{{base-url}}/api/{{api-version}}/user/my-reportees",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"{{api-version}}",
+								"user",
+								"my-reportees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "My Team",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : 50,\r\n    \"new_name\" : \"Green Apple\" \r\n}"
+						},
+						"url": {
+							"raw": "{{base-url}}/api/{{api-version}}/user/my-team",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"{{api-version}}",
+								"user",
+								"my-team"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Profile Picture",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "profile_image",
+									"type": "file",
+									"src": "postman-cloud:///1efeaa78-f3bb-4e70-91cf-b468ee999f0a"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/user/profile-picture",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"profile-picture"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{login_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Leave Requests",
+			"item": [
+				{
+					"name": "Get Leave Requests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/leave-requests",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leave-requests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Store Leave Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"leave_type_id\": 2,\r\n    \"start_date\": \"2025-05-20\",\r\n    \"start_is_half_day\": false,\r\n    \"start_half\": null,\r\n    \"end_date\": \"2025-05-21\",\r\n    \"end_is_half_day\": false,\r\n    \"end_half\": null,\r\n    \"reason\": \"Medical leave\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/leave-requests",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"leave-requests"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{login_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Attendances",
+			"item": [
+				{
+					"name": "Get Attendances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/attendances",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"attendances"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{login_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Overview",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/dashboard/overview",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"dashboard",
+								"overview"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{login_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Attachments",
+			"item": [
+				{
+					"name": "Upload Attachments",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1efeaa78-f3bb-4e70-91cf-b468ee999f0a"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base-url}}/api/{{api-version}}/attachments",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"{{api-version}}",
+								"attachments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Attachment",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1efeaa78-f3bb-4e70-91cf-b468ee999f0a"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base-url}}/api/{{api-version}}/attachments/:attachmentId",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"{{api-version}}",
+								"attachments",
+								":attachmentId"
+							],
+							"variable": [
+								{
+									"key": "attachmentId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{login_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.request.headers.add({ \r",
+					"    \"key\": \"Accept\",\r",
+					"    \"value\" : \"application/json\" \r",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base-url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		},
+		{
+			"key": "api-version",
+			"value": "v1",
+			"type": "string"
+		},
+		{
+			"key": "login_token",
+			"value": ""
+		},
+		{
+			"key": "employee_uuid",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
