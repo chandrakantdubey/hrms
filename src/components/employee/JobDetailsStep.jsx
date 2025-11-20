@@ -26,14 +26,64 @@ import { toast } from "sonner";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Textarea } from "@/components/ui/textarea";
 
-export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
+export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialData = {} }) => {
   const { mutate: createJobDetails, isPending } = useCreateEmployeeJobDetails();
-  const { register, handleSubmit, control, watch } = useForm();
+  const { register, handleSubmit, control, watch, formState: { errors }, reset } = useForm({
+    defaultValues: {
+      company_id: initialData.company_id || "",
+      department_id: initialData.department_id || "",
+      designation_id: initialData.designation_id || "",
+      employee_code: initialData.employee_code || "",
+      status: initialData.status || "",
+      type: initialData.type || "",
+      joining_date: initialData.joining_date || "",
+      confirmation_date: initialData.confirmation_date || "",
+      resignation_date: initialData.resignation_date || "",
+      termination_date: initialData.termination_date || "",
+      last_working_date: initialData.last_working_date || "",
+      reason_for_leaving: initialData.reason_for_leaving || "",
+      office_email: initialData.office_email || "",
+      office_phone_no: initialData.office_phone_no || "",
+      leave_policy_id: initialData.leave_policy_id || "",
+      shift_id: initialData.shift_id || "",
+      reporting_to: initialData.reporting_to || "",
+      roles: initialData.roles || [],
+    }
+  });
+
+  // Reset form when initialData changes
+  React.useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      reset({
+        company_id: initialData.company_id || "",
+        department_id: initialData.department_id || "",
+        designation_id: initialData.designation_id || "",
+        employee_code: initialData.employee_code || "",
+        status: initialData.status || "",
+        type: initialData.type || "",
+        joining_date: initialData.joining_date || "",
+        confirmation_date: initialData.confirmation_date || "",
+        resignation_date: initialData.resignation_date || "",
+        termination_date: initialData.termination_date || "",
+        last_working_date: initialData.last_working_date || "",
+        reason_for_leaving: initialData.reason_for_leaving || "",
+        office_email: initialData.office_email || "",
+        office_phone_no: initialData.office_phone_no || "",
+        leave_policy_id: initialData.leave_policy_id || "",
+        shift_id: initialData.shift_id || "",
+        reporting_to: initialData.reporting_to || "",
+        roles: initialData.roles || [],
+      });
+    }
+  }, [initialData, reset]);
+
+  // Watch the status field for conditional rendering - must be after useForm
+  const employmentStatus = watch("status");
 
   const selectedCompany = watch("company_id");
   const selectedDepartment = watch("department_id");
-  const employmentStatus = watch("status"); // Watch the status field for conditional rendering
 
+  // Fetch master data for dropdowns
   const { data: companies } = useCompanies(1, 1000);
   const { data: departments } = useDepartments(1, 1000);
   const { data: designations } = useDesignations(1, 1000);
@@ -43,6 +93,64 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
   const { data: managers } = useManagers(selectedCompany, selectedDepartment);
 
   const onSubmit = (data) => {
+    // Date validation logic
+    const joining = new Date(data.joining_date);
+    const today = new Date();
+
+    // Validate confirmation date if status is confirmed
+    if (data.status === "confirmed" && data.confirmation_date) {
+      const confirmation = new Date(data.confirmation_date);
+      if (confirmation <= joining) {
+        toast.error("Confirmation date must be after joining date");
+        return;
+      }
+      if (confirmation > today) {
+        toast.error("Confirmation date cannot be in the future");
+        return;
+      }
+    }
+
+    // Validate resignation date if status is resigned
+    if (data.status === "resigned" && data.resignation_date) {
+      const resignation = new Date(data.resignation_date);
+      if (resignation <= joining) {
+        toast.error("Resignation date must be after joining date");
+        return;
+      }
+      if (resignation > today) {
+        toast.error("Resignation date cannot be in the future");
+        return;
+      }
+    }
+
+    // Validate termination date if status is terminated
+    if (data.status === "terminated" && data.termination_date) {
+      const termination = new Date(data.termination_date);
+      if (termination <= joining) {
+        toast.error("Termination date must be after joining date");
+        return;
+      }
+      if (termination > today) {
+        toast.error("Termination date cannot be in the future");
+        return;
+      }
+    }
+
+    // Validate last working date for resigned/terminated employees
+    if ((data.status === "resigned" || data.status === "terminated") && data.last_working_date) {
+      const lastWorking = new Date(data.last_working_date);
+      const relevantDate = data.status === "resigned" ? new Date(data.resignation_date) : new Date(data.termination_date);
+
+      if (lastWorking <= relevantDate) {
+        toast.error("Last working date must be after resignation/termination date");
+        return;
+      }
+      if (lastWorking > today) {
+        toast.error("Last working date cannot be in the future");
+        return;
+      }
+    }
+
     // Clean up the payload to send null for empty optional fields
     const payload = {
       ...data,
@@ -70,7 +178,7 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
     createJobDetails(payload, {
       onSuccess: () => {
         toast.success("Job details saved!");
-        onSuccess();
+        onSuccess(stepNumber, data);
       },
       onError: (err) =>
         toast.error(
@@ -103,6 +211,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               </Select>
             )}
           />
+          {errors.company_id && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.company_id.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Department</Label>
@@ -125,6 +238,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               </Select>
             )}
           />
+          {errors.department_id && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.department_id.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Designation</Label>
@@ -147,6 +265,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               </Select>
             )}
           />
+          {errors.designation_id && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.designation_id.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Employee Code</Label>
@@ -156,6 +279,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               required: "Employee code is required.",
             })}
           />
+          {errors.employee_code && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.employee_code.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -179,6 +307,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               </Select>
             )}
           />
+          {errors.status && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.status.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -200,6 +333,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               </Select>
             )}
           />
+          {errors.type && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.type.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -210,6 +348,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               required: "Joining date is required.",
             })}
           />
+          {errors.joining_date && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.joining_date.message}
+            </p>
+          )}
         </div>
 
         {/* --- CONDITIONAL FIELDS START HERE --- */}
@@ -223,6 +366,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
                   "Confirmation date is required for 'Confirmed' status.",
               })}
             />
+            {errors.confirmation_date && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.confirmation_date.message}
+              </p>
+            )}
           </div>
         )}
         {employmentStatus === "resigned" && (
@@ -234,6 +382,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
                 required: "Resignation date is required for 'Resigned' status.",
               })}
             />
+            {errors.resignation_date && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.resignation_date.message}
+              </p>
+            )}
           </div>
         )}
         {employmentStatus === "terminated" && (
@@ -246,12 +399,39 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
                   "Termination date is required for 'Terminated' status.",
               })}
             />
+            {errors.termination_date && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.termination_date.message}
+              </p>
+            )}
           </div>
         )}
         {["resigned", "terminated"].includes(employmentStatus) && (
           <div className="space-y-2">
             <Label>Last Working Date</Label>
             <Input type="date" {...register("last_working_date")} />
+            {errors.last_working_date && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.last_working_date.message}
+              </p>
+            )}
+          </div>
+        )}
+
+        {["resigned", "terminated"].includes(employmentStatus) && (
+          <div className="space-y-2">
+            <Label>Reason for Leaving</Label>
+            <Textarea
+              {...register("reason_for_leaving", {
+                required: "Reason for leaving is required for resigned/terminated employees."
+              })}
+              placeholder="Please provide reason for leaving..."
+            />
+            {errors.reason_for_leaving && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.reason_for_leaving.message}
+              </p>
+            )}
           </div>
         )}
 
@@ -263,10 +443,20 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               required: "Office email is required.",
             })}
           />
+          {errors.office_email && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.office_email.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Office Phone (Optional)</Label>
           <Input type="text" {...register("office_phone_no")} />
+          {errors.office_phone_no && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.office_phone_no.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -290,6 +480,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               </Select>
             )}
           />
+          {errors.leave_policy_id && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.leave_policy_id.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Shift</Label>
@@ -312,6 +507,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
               </Select>
             )}
           />
+          {errors.shift_id && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.shift_id.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Reporting To</Label>
@@ -344,13 +544,6 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack }) => {
             )}
           />
         </div>
-
-        {["resigned", "terminated"].includes(employmentStatus) && (
-          <div className="space-y-2 lg:col-span-3">
-            <Label>Reason for Leaving</Label>
-            <Textarea {...register("reason_for_leaving")} />
-          </div>
-        )}
 
         <div className="space-y-2 lg:col-span-3">
           <Label>Roles</Label>

@@ -12,25 +12,63 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { bloodGroups } from "@/lib/constants";
+import { isValidIndianPhoneNumber } from "@/lib/phoneValidation";
 import PhoneInput from "react-phone-input-2";
 // import "react-phone-input-2/lib/style.css";
 import { toast } from "sonner";
 
-export const PersonalInfoStep = ({ onSuccess }) => {
+export const PersonalInfoStep = ({ onSuccess, onError, initialData = {} }) => {
   const { mutate: createPersonalInfo, isPending } =
     useCreateEmployeePersonalInfo();
-  const { register, handleSubmit, control } = useForm();
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm({
+    defaultValues: {
+      first_name: initialData.first_name || "",
+      middle_name: initialData.middle_name || "",
+      last_name: initialData.last_name || "",
+      date_of_birth: initialData.date_of_birth || "",
+      gender: initialData.gender || "",
+      marital_status: initialData.marital_status || "",
+      blood_group: initialData.blood_group || "",
+      personal_email: initialData.personal_email || "",
+      personal_phone_no: initialData.personal_phone_no || "",
+    }
+  });
+
+  // Calculate minimum date for date of birth (18 years ago)
+  const minDateOfBirth = new Date();
+  minDateOfBirth.setFullYear(minDateOfBirth.getFullYear() - 18);
 
   const onSubmit = (data) => {
+    // Validate date of birth
+    const dob = new Date(data.date_of_birth);
+    const today = new Date();
+
+    if (dob > today) {
+      toast.error("Date of birth cannot be in the future");
+      return;
+    }
+
+    if (dob > minDateOfBirth) {
+      toast.error("Employee must be at least 18 years old");
+      return;
+    }
+
     createPersonalInfo(data, {
       onSuccess: (response) => {
         toast.success("Personal info saved successfully!");
-        onSuccess(response.data.uuid);
+        onSuccess(response.data.uuid, data);
       },
-      onError: (err) =>
-        toast.error(
-          err.response?.data?.message || "Failed to save personal info."
-        ),
+      onError: (err) => {
+        const errorMessage = err.response?.data?.message || "Failed to save personal info.";
+        toast.error(errorMessage);
+        if (onError) onError(errorMessage);
+      },
     });
   };
 
@@ -41,34 +79,83 @@ export const PersonalInfoStep = ({ onSuccess }) => {
           <Label htmlFor="first_name">First Name</Label>
           <Input
             id="first_name"
-            {...register("first_name", { required: true })}
+            {...register("first_name", {
+              required: "First name is required",
+              minLength: { value: 2, message: "First name must be at least 2 characters" },
+              maxLength: { value: 50, message: "First name must be less than 50 characters" },
+              pattern: { value: /^[A-Za-z\s]+$/, message: "First name can only contain letters and spaces" }
+            })}
           />
+          {errors.first_name && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.first_name.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="middle_name">Middle Name (Optional)</Label>
-          <Input id="middle_name" {...register("middle_name")} />
+          <Input
+            id="middle_name"
+            {...register("middle_name", {
+              maxLength: { value: 50, message: "Middle name must be less than 50 characters" },
+              pattern: { value: /^[A-Za-z\s]*$/, message: "Middle name can only contain letters and spaces" }
+            })}
+          />
+          {errors.middle_name && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.middle_name.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="last_name">Last Name</Label>
           <Input
             id="last_name"
-            {...register("last_name", { required: true })}
+            {...register("last_name", {
+              required: "Last name is required",
+              minLength: { value: 2, message: "Last name must be at least 2 characters" },
+              maxLength: { value: 50, message: "Last name must be less than 50 characters" },
+              pattern: { value: /^[A-Za-z\s]+$/, message: "Last name can only contain letters and spaces" }
+            })}
           />
+          {errors.last_name && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.last_name.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="date_of_birth">Date of Birth</Label>
           <Input
             id="date_of_birth"
             type="date"
-            {...register("date_of_birth", { required: true })}
+            {...register("date_of_birth", {
+              required: "Date of birth is required",
+              validate: (value) => {
+                const dob = new Date(value);
+                const today = new Date();
+                const minDate = new Date();
+                minDate.setFullYear(minDate.getFullYear() - 18);
+
+                if (dob > today) return "Date of birth cannot be in the future";
+                if (dob > minDate) return "Employee must be at least 18 years old";
+                return true;
+              }
+            })}
+            max={minDateOfBirth.toISOString().split('T')[0]}
           />
+          {errors.date_of_birth && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.date_of_birth.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Gender</Label>
           <Controller
             name="gender"
             control={control}
-            rules={{ required: true }}
+            rules={{ required: "Gender is required" }}
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className="w-full">
@@ -82,13 +169,18 @@ export const PersonalInfoStep = ({ onSuccess }) => {
               </Select>
             )}
           />
+          {errors.gender && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.gender.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Marital Status</Label>
           <Controller
             name="marital_status"
             control={control}
-            rules={{ required: true }}
+            rules={{ required: "Marital status is required" }}
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger className="w-full">
@@ -103,6 +195,11 @@ export const PersonalInfoStep = ({ onSuccess }) => {
               </Select>
             )}
           />
+          {errors.marital_status && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.marital_status.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Blood Group</Label>
@@ -130,16 +227,35 @@ export const PersonalInfoStep = ({ onSuccess }) => {
           <Input
             id="personal_email"
             type="email"
-            {...register("personal_email", { required: true })}
+            {...register("personal_email", {
+              required: "Personal email is required",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Please enter a valid email address"
+              }
+            })}
           />
+          {errors.personal_email && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.personal_email.message}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>Personal Phone</Label>
           <Controller
             name="personal_phone_no"
             control={control}
-            disableDropdown
-            rules={{ required: true }}
+            rules={{
+              required: "Personal phone number is required",
+              validate: (value) => {
+                if (!value) return "Personal phone number is required";
+                if (!isValidIndianPhoneNumber(value)) {
+                  return "Please enter a valid Indian phone number";
+                }
+                return true;
+              }
+            }}
             render={({ field }) => (
               <PhoneInput
                 country={"in"}
@@ -169,6 +285,11 @@ export const PersonalInfoStep = ({ onSuccess }) => {
               />
             )}
           />
+          {errors.personal_phone_no && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.personal_phone_no.message}
+            </p>
+          )}
         </div>
       </div>
       <div className="flex justify-end pt-6">

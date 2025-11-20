@@ -19,14 +19,34 @@ import {
 /**
  * Enhanced DocumentUploader with Change functionality
  */
-const DocumentUploader = ({ docType, onUploadSuccess }) => {
-  const [status, setStatus] = useState("idle"); // 'idle', 'uploading', 'success', 'error'
-  const [uploadedFileName, setUploadedFileName] = useState("");
+const DocumentUploader = ({ docType, onUploadSuccess, initialStatus = "idle", initialFileName = "", uploadedDocument }) => {
+  const [status, setStatus] = useState(initialStatus); // 'idle', 'uploading', 'success', 'error'
+  const [uploadedFileName, setUploadedFileName] = useState(initialFileName);
   const { mutate: uploadFile, isPending } = useUploadAttachment();
+
+  // Update state when initial props change (for persistence across navigation)
+  React.useEffect(() => {
+    setStatus(initialStatus);
+    setUploadedFileName(initialFileName);
+  }, [initialStatus, initialFileName]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(selectedFile.type)) {
+        toast.error(`Invalid file type for ${docType.name}. Please upload PDF, DOC, DOCX, or image files.`);
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (selectedFile.size > maxSize) {
+        toast.error(`File size too large for ${docType.name}. Maximum size is 5MB.`);
+        return;
+      }
+
       setStatus("uploading");
       uploadFile(selectedFile, {
         onSuccess: (response) => {
@@ -49,6 +69,8 @@ const DocumentUploader = ({ docType, onUploadSuccess }) => {
     setUploadedFileName("");
     // We don't need to call a delete API here, as the new upload will simply overwrite
     // the document ID in the parent component's state.
+    // Notify parent that this document was removed
+    onUploadSuccess(docType.id, null);
   };
 
   const renderStatus = () => {
@@ -137,20 +159,53 @@ const DocumentUploader = ({ docType, onUploadSuccess }) => {
  * Parent component for the Documents Step.
  * No changes are needed here.
  */
-export const DocumentsStep = ({ uuid, onSuccess }) => {
+export const DocumentsStep = ({ uuid, onSuccess, onBack, onError, initialData = [], onDocumentUpdate, stepNumber }) => {
   const { mutate: completeOnboarding, isPending } =
     useCompleteEmployeeOnboarding();
   const { data: docTypesData, isLoading: isLoadingDocTypes } = useDocumentTypes(
     1,
     100
   );
-  const [uploadedDocuments, setUploadedDocuments] = useState([]);
+  const [uploadedDocuments, setUploadedDocuments] = useState(initialData);
+
+  // Update local state when initialData changes
+  React.useEffect(() => {
+    setUploadedDocuments(initialData);
+  }, [initialData]);
 
   const handleUploadSuccess = (typeId, documentId) => {
-    setUploadedDocuments((prev) => [
-      ...prev.filter((doc) => doc.type_id !== typeId),
-      { type_id: typeId, document_id: documentId },
-    ]);
+    let newDocs;
+    if (documentId === null) {
+      // Remove document from the list
+      newDocs = uploadedDocuments.filter((doc) => doc.type_id !== typeId);
+    } else {
+      // Add or update document in the list
+      newDocs = [
+        ...uploadedDocuments.filter((doc) => doc.type_id !== typeId),
+        { type_id: typeId, document_id: documentId },
+      ];
+    }
+    setUploadedDocuments(newDocs);
+    if (onDocumentUpdate) {
+      onDocumentUpdate(newDocs);
+    }
+  };
+
+  // Helper function to get initial state for each document uploader
+  const getDocumentState = (docTypeId) => {
+    const uploadedDoc = uploadedDocuments.find(doc => doc.type_id === docTypeId);
+    if (uploadedDoc) {
+      return {
+        initialStatus: "success",
+        initialFileName: `Document_${docTypeId}_${uploadedDoc.document_id}`, // Placeholder name since we don't have the actual filename
+        uploadedDocument: uploadedDoc
+      };
+    }
+    return {
+      initialStatus: "idle",
+      initialFileName: "",
+      uploadedDocument: null
+    };
   };
 
   const handleSubmit = () => {
@@ -191,13 +246,19 @@ export const DocumentsStep = ({ uuid, onSuccess }) => {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        {docTypesData?.data?.document_types.map((docType) => (
-          <DocumentUploader
-            key={docType.id}
-            docType={docType}
-            onUploadSuccess={handleUploadSuccess}
-          />
-        ))}
+        {docTypesData?.data?.document_types.map((docType) => {
+          const docState = getDocumentState(docType.id);
+          return (
+            <DocumentUploader
+              key={docType.id}
+              docType={docType}
+              onUploadSuccess={handleUploadSuccess}
+              initialStatus={docState.initialStatus}
+              initialFileName={docState.initialFileName}
+              uploadedDocument={docState.uploadedDocument}
+            />
+          );
+        })}
       </div>
       <div className="flex justify-end pt-6">
         <Button onClick={handleSubmit} disabled={isPending}>

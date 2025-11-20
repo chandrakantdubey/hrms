@@ -14,32 +14,90 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { indianStates } from "@/lib/constants";
+import { isValidIndianPhoneNumber } from "@/lib/phoneValidation";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 
-export const ContactInfoStep = ({ uuid, onSuccess }) => {
+export const ContactInfoStep = ({ uuid, onSuccess, stepNumber, initialData = {} }) => {
   const { mutate: createContactInfo, isPending } =
     useCreateEmployeeContactInfo();
-  const { register, handleSubmit, control } = useForm({
+  const { register, handleSubmit, control, formState: { errors }, reset } = useForm({
     defaultValues: {
-      address: "",
-      city: "",
-      state: "",
+      address: initialData.address || "",
+      city: initialData.city || "",
+      state: initialData.state || "",
       // --- FIELD ADDED: Country is now included ---
       country: "India",
-      postal_code: "",
-      emergency_contact: [
+      postal_code: initialData.postal_code || "",
+      emergency_contact: initialData.emergency_contact || [
         { name: "", type: "phone", value: "", relationship: "" },
       ],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "emergency_contact",
   });
 
+  // Reset form when initialData changes
+  React.useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      reset({
+        address: initialData.address || "",
+        city: initialData.city || "",
+        state: initialData.state || "",
+        country: "India",
+        postal_code: initialData.postal_code || "",
+        emergency_contact: initialData.emergency_contact || [
+          { name: "", type: "phone", value: "", relationship: "" },
+        ],
+      });
+      // Replace the emergency contacts array
+      if (initialData.emergency_contact && initialData.emergency_contact.length > 0) {
+        replace(initialData.emergency_contact);
+      }
+    }
+  }, [initialData, reset, replace]);
+
   const onSubmit = (data) => {
+    // Validate emergency contacts - if name is provided, all fields must be filled
+    const emergencyContacts = data.emergency_contact || [];
+    for (let i = 0; i < emergencyContacts.length; i++) {
+      const contact = emergencyContacts[i];
+      if (contact.name && contact.name.trim()) {
+        if (!contact.type) {
+          toast.error(`Emergency contact ${i + 1}: Please select contact type`);
+          return;
+        }
+        if (!contact.value || !contact.value.trim()) {
+          toast.error(`Emergency contact ${i + 1}: Please provide contact value`);
+          return;
+        }
+        if (!contact.relationship || !contact.relationship.trim()) {
+          toast.error(`Emergency contact ${i + 1}: Please provide relationship`);
+          return;
+        }
+
+        // Validate email format if type is email
+        if (contact.type === "email" && contact.value) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(contact.value)) {
+            toast.error(`Emergency contact ${i + 1}: Please enter a valid email address`);
+            return;
+          }
+        }
+
+        // Validate phone number if type is phone
+        if (contact.type === "phone" && contact.value) {
+          if (!isValidIndianPhoneNumber(contact.value)) {
+            toast.error(`Emergency contact ${i + 1}: Please enter a valid Indian phone number`);
+            return;
+          }
+        }
+      }
+    }
+
     // Filter out emergency contacts where the name is empty
     const cleanedData = {
       ...data,
@@ -53,7 +111,7 @@ export const ContactInfoStep = ({ uuid, onSuccess }) => {
       {
         onSuccess: () => {
           toast.success("Contact info saved successfully!");
-          onSuccess();
+          onSuccess(stepNumber, cleanedData);
         },
         onError: (err) =>
           toast.error(
@@ -72,6 +130,9 @@ export const ContactInfoStep = ({ uuid, onSuccess }) => {
           {...register("address", { required: "Address is required." })}
           placeholder="e.g., 123 MG Road, Near Central Mall"
         />
+        {errors.address && (
+          <p className="text-sm text-red-500 mt-1">{errors.address.message}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -82,6 +143,9 @@ export const ContactInfoStep = ({ uuid, onSuccess }) => {
             {...register("city", { required: "City is required." })}
             placeholder="e.g., Bangalore"
           />
+          {errors.city && (
+            <p className="text-sm text-red-500 mt-1">{errors.city.message}</p>
+          )}
         </div>
         <div className="space-y-2">
           <Label>State</Label>
@@ -104,6 +168,9 @@ export const ContactInfoStep = ({ uuid, onSuccess }) => {
               </Select>
             )}
           />
+          {errors.state && (
+            <p className="text-sm text-red-500 mt-1">{errors.state.message}</p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="postal_code">Postal Code</Label>
@@ -111,9 +178,16 @@ export const ContactInfoStep = ({ uuid, onSuccess }) => {
             id="postal_code"
             {...register("postal_code", {
               required: "Postal code is required.",
+              pattern: {
+                value: /^\d{6}$/,
+                message: "Postal code must be 6 digits."
+              }
             })}
             placeholder="e.g., 560001"
           />
+          {errors.postal_code && (
+            <p className="text-sm text-red-500 mt-1">{errors.postal_code.message}</p>
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="country">Country</Label>

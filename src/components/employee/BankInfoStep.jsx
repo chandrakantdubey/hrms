@@ -6,23 +6,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export const BankInfoStep = ({ uuid, onSuccess }) => {
+export const BankInfoStep = ({ uuid, onSuccess, stepNumber, initialData = {} }) => {
   const { mutate: createBankInfo, isPending } = useCreateEmployeeBankInfo();
   // Destructure 'errors' from formState to display validation messages
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: {
-      aadhaar_no: "",
-      pan_no: "",
-      uan_no: "",
-      bank_account_no: "",
-      ifsc_code: "",
-      bank_name: "",
+      aadhaar_no: initialData.aadhaar_no || "",
+      pan_no: initialData.pan_no || "",
+      uan_no: initialData.uan_no || "",
+      bank_account_no: initialData.bank_account_no || "",
+      ifsc_code: initialData.ifsc_code || "",
+      bank_name: initialData.bank_name || "",
     },
   });
+
+  // Reset form when initialData changes
+  React.useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      reset({
+        aadhaar_no: initialData.aadhaar_no || "",
+        pan_no: initialData.pan_no || "",
+        uan_no: initialData.uan_no || "",
+        bank_account_no: initialData.bank_account_no || "",
+        ifsc_code: initialData.ifsc_code || "",
+        bank_name: initialData.bank_name || "",
+      });
+    }
+  }, [initialData, reset]);
 
   const onSubmit = (data) => {
     // Filter out empty string fields before submitting, as all are nullable
@@ -35,7 +50,7 @@ export const BankInfoStep = ({ uuid, onSuccess }) => {
       {
         onSuccess: () => {
           toast.success("Bank info saved successfully!");
-          onSuccess();
+          onSuccess(stepNumber, data);
         },
         onError: (err) =>
           toast.error(
