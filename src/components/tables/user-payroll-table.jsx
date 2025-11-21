@@ -9,7 +9,6 @@ import { GenericTable } from "../ui/generic-table";
 function UserPayrollTable() {
   // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   // Use the updated hooks
   const { data, isLoading, isError } = useUserPayrolls({
@@ -119,7 +118,6 @@ function UserPayrollTable() {
       data={payrollRecords}
       pagination={paginationInfo}
       onPageChange={setCurrentPage} // This state change triggers the hook to refetch
-      pageSize={pageSize}
       loading={isLoading} // Show the table's inline loader on page changes
       emptyMessage="No payroll records found."
     />

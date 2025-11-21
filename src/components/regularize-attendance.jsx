@@ -20,9 +20,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Loader from "./ui/loader"; // Or a spinner icon
+import { DatePickerComponent } from "@/components/ui/date-picker";
 
 const INITIAL_STATE = {
-  date: "",
+  date: undefined,
   type: "check_in_correction",
   new_check_in: null,
   new_check_out: null,
@@ -45,18 +46,24 @@ export function RegularizeAttendance({
         // Pre-fill if a specific attendance record was clicked
         setFormData({
           ...INITIAL_STATE,
-          date: new Date(attendanceData.date).toISOString().split("T")[0], // Format to YYYY-MM-DD
+          date: new Date(attendanceData.date),
         });
       } else {
-        // Reset for the generic "Regularize" button
         setFormData(INITIAL_STATE);
       }
+    } else {
+      // Reset when dialog closes
+      setFormData(INITIAL_STATE);
     }
   }, [open, attendanceData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDateChange = (date) => {
+    setFormData((prev) => ({ ...prev, date }));
   };
 
   const handleSelectChange = (value) => {
@@ -70,49 +77,47 @@ export function RegularizeAttendance({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.date || !formData.reason) {
-      toast.error("Please fill in the date and reason.");
-      return;
-    }
-    // Clean up null values before submitting
-    const payload = Object.fromEntries(
-      Object.entries(formData).filter(
-        ([, value]) => value != null && value !== ""
-      )
-    );
-    onSubmit(payload);
+
+    // Format date for API
+    const formatDate = (date) => {
+      if (!date) return null;
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
+    const submissionData = {
+      ...formData,
+      date: formatDate(formData.date),
+    };
+
+    onSubmit(submissionData);
   };
 
-  const showCheckIn = ["check_in_correction", "full_day"].includes(
-    formData.type
-  );
-  const showCheckOut = ["check_out_correction", "full_day"].includes(
-    formData.type
-  );
+  const showCheckIn = formData.type === "check_in_correction" || formData.type === "full_day";
+  const showCheckOut = formData.type === "check_out_correction" || formData.type === "full_day";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>Regularize Attendance</DialogTitle>
-            <DialogDescription>
-              Submit a request to correct your attendance record.
-            </DialogDescription>
-          </DialogHeader>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Regularize Attendance</DialogTitle>
+          <DialogDescription>
+            Submit a request to correct your attendance record.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="date" className="text-right">
                 Date
               </Label>
-              <Input
-                id="date"
-                name="date"
-                type="date"
-                value={formData.date}
-                onChange={handleChange}
-                disabled={!!attendanceData} // Disable if a specific record was selected
+              <DatePickerComponent
+                selected={formData.date}
+                onChange={handleDateChange}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select date"
                 className="col-span-3"
+                disabled={!!attendanceData}
                 required
               />
             </div>

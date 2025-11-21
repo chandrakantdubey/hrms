@@ -1,7 +1,7 @@
 // src/components/masters/CompaniesMaster.jsx
 
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import {
   useCompanies,
@@ -31,6 +31,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import { DatePickerComponent } from "@/components/ui/date-picker";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const companySchema = z.object({
+  name: z.string().min(1, "Company name is required"),
+  email: z.string().email("Invalid email format").optional(),
+  phone_no: z.string().optional(),
+  website: z.string().optional(),
+  address: z.string().optional(),
+  description: z.string().optional(),
+  established_date: z.date().optional(),
+});
 
 /**
  * Dialog Form for Creating and Editing Companies
@@ -40,12 +53,21 @@ const CompanyFormDialog = ({ open, onClose, company }) => {
   const { mutate: updateCompany, isPending: isUpdating } = useUpdateCompany();
   const isSubmitting = isCreating || isUpdating;
 
+  // Helper function to convert date strings to Date objects
+  const parseDate = (dateValue) => {
+    if (!dateValue) return undefined;
+    if (dateValue instanceof Date) return dateValue;
+    return new Date(dateValue);
+  };
+
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors },
   } = useForm({
+    resolver: zodResolver(companySchema),
     defaultValues: {
       name: "",
       email: "",
@@ -53,7 +75,7 @@ const CompanyFormDialog = ({ open, onClose, company }) => {
       website: "",
       address: "",
       description: "",
-      established_date: "",
+      established_date: undefined,
     },
   });
 
@@ -61,13 +83,11 @@ const CompanyFormDialog = ({ open, onClose, company }) => {
   useEffect(() => {
     if (open) {
       if (company) {
-        // Format date for the input field if it exists
-        const estDate = company.established_date
-          ? new Date(company.established_date).toISOString().split("T")[0]
-          : "";
-        reset({ ...company, established_date: estDate });
+        reset({
+          ...company,
+          established_date: parseDate(company.established_date),
+        });
       } else {
-        // Reset to empty form for creating new company
         reset({
           name: "",
           email: "",
@@ -75,13 +95,20 @@ const CompanyFormDialog = ({ open, onClose, company }) => {
           website: "",
           address: "",
           description: "",
-          established_date: "",
+          established_date: undefined,
         });
       }
     }
   }, [company, open, reset]);
 
   const onSubmit = (formData) => {
+    // Format date for API
+    const formatDate = (date) => {
+      if (!date) return null;
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
     // Filter out empty string values to send null to the API if desired
     const payload = Object.fromEntries(
       Object.entries(formData).map(([key, value]) => [
@@ -89,6 +116,9 @@ const CompanyFormDialog = ({ open, onClose, company }) => {
         value === "" ? null : value,
       ])
     );
+
+    // Format established_date
+    payload.established_date = formatDate(formData.established_date);
 
     const mutationOptions = {
       onSuccess: () => {
@@ -153,11 +183,24 @@ const CompanyFormDialog = ({ open, onClose, company }) => {
             </div>
             <div>
               <Label htmlFor="established_date">Established Date</Label>
-              <Input
-                id="established_date"
-                type="date"
-                {...register("established_date")}
+              <Controller
+                name="established_date"
+                control={control}
+                render={({ field }) => (
+                  <DatePickerComponent
+                    selected={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select established date"
+                    className="w-full"
+                  />
+                )}
               />
+              {errors.established_date && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.established_date.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -171,7 +214,7 @@ const CompanyFormDialog = ({ open, onClose, company }) => {
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 };
 
 /**

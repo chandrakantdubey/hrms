@@ -39,8 +39,7 @@ export default function Attendance() {
     useCreateUserAttendanceRequest();
   const { mutate: updateRequest, isPending: isUpdating } =
     useUpdateUserAttendanceRequest();
-  const { mutate: deleteRequest, isPending: isDeleting } =
-    useDeleteUserAttendanceRequest();
+  const { mutate: deleteRequest } = useDeleteUserAttendanceRequest();
   const isSubmitting = isCreating || isUpdating;
 
   // --- DIALOG AND FORM HANDLERS ---

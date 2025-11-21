@@ -19,12 +19,7 @@ export default function Leaves() {
     isError: isDashboardStatError,
     refetch,
   } = useDashboardOverview();
-  const {
-    mutate: deleteLeaveRequest,
-    isPending: isDeleting,
-    isError,
-    error,
-  } = useDeleteUserLeaveRequest();
+  const { mutate: deleteLeaveRequest } = useDeleteUserLeaveRequest();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLeaveRequest, setSelectedLeaveRequest] = useState(undefined);

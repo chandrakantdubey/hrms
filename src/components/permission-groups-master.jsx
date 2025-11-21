@@ -122,13 +122,12 @@ export const PermissionGroupsMaster = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const {
     data: groupsData,
     isLoading,
     isError,
-  } = usePermissionGroups(currentPage, pageSize);
+  } = usePermissionGroups(currentPage, 10);
   const { mutate: deletePermissionGroup } = useDeletePermissionGroup();
 
   const handleOpenDialog = (group = null) => {

@@ -1,7 +1,7 @@
 // src/components/masters/HolidaysMaster.jsx
 
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import {
   useHolidays,
@@ -20,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { DatePickerComponent } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -44,26 +44,37 @@ const HolidayFormDialog = ({ open, onClose, holiday }) => {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm({
-    defaultValues: { name: "", date: "", description: "" },
+    defaultValues: { name: "", date: undefined, description: "" },
   });
 
   useEffect(() => {
     if (open) {
       if (holiday) {
-        // Format date for the input[type="date"] field
-        const formattedDate = holiday.date
-          ? new Date(holiday.date).toISOString().split("T")[0]
-          : "";
-        reset({ ...holiday, date: formattedDate });
+        reset({
+          ...holiday,
+          date: holiday.date ? new Date(holiday.date) : undefined,
+        });
       } else {
-        reset({ name: "", date: "", description: "" });
+        reset({ name: "", date: undefined, description: "" });
       }
     }
   }, [holiday, open, reset]);
 
   const onSubmit = (formData) => {
+    const formatDate = (date) => {
+      if (!date) return "";
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
+    const payload = {
+      ...formData,
+      date: formatDate(formData.date),
+    };
+
     const mutationOptions = {
       onSuccess: () => {
         toast.success(
@@ -77,9 +88,9 @@ const HolidayFormDialog = ({ open, onClose, holiday }) => {
     };
 
     if (holiday) {
-      updateHoliday({ id: holiday.id, ...formData }, mutationOptions);
+      updateHoliday({ id: holiday.id, ...payload }, mutationOptions);
     } else {
-      createHoliday(formData, mutationOptions);
+      createHoliday(payload, mutationOptions);
     }
   };
 
@@ -104,10 +115,19 @@ const HolidayFormDialog = ({ open, onClose, holiday }) => {
           </div>
           <div>
             <Label htmlFor="date">Date</Label>
-            <Input
-              id="date"
-              type="date"
-              {...register("date", { required: "Date is required." })}
+            <Controller
+              name="date"
+              control={control}
+              rules={{ required: "Date is required." }}
+              render={({ field }) => (
+                <DatePickerComponent
+                  id="date"
+                  selected={field.value}
+                  onChange={(date) => field.onChange(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select date"
+                />
+              )}
             />
             {errors.date && (
               <p className="text-sm text-red-500 mt-1">{errors.date.message}</p>
@@ -138,13 +158,12 @@ export const HolidaysMaster = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingHoliday, setEditingHoliday] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const {
     data: holidaysData,
     isLoading,
     isError,
-  } = useHolidays(currentPage, pageSize);
+  } = useHolidays(currentPage, 10);
   const { mutate: deleteHoliday } = useDeleteHoliday();
 
   const handleOpenDialog = (holiday = null) => {

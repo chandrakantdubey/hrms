@@ -38,6 +38,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import { DatePickerComponent } from "@/components/ui/date-picker";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const announcementSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  body: z.string().min(1, "Body is required"),
+  type: z.string().min(1, "Type is required"),
+  start_date: z.date({ message: "Start date is required" }),
+  end_date: z.date({ message: "End date is required" }),
+});
 
 /**
  * Dialog Form for Creating and Editing Announcements
@@ -49,6 +60,13 @@ const AnnouncementFormDialog = ({ open, onClose, announcement }) => {
     useUpdateAnnouncement();
   const isSubmitting = isCreating || isUpdating;
 
+  // Helper function to convert date strings to Date objects
+  const parseDate = (dateValue) => {
+    if (!dateValue) return undefined;
+    if (dateValue instanceof Date) return dateValue;
+    return new Date(dateValue);
+  };
+
   // --- FIX 2: Add `control` to the useForm destructuring ---
   const {
     register,
@@ -57,44 +75,50 @@ const AnnouncementFormDialog = ({ open, onClose, announcement }) => {
     control,
     formState: { errors },
   } = useForm({
+    resolver: zodResolver(announcementSchema),
     defaultValues: {
       title: "",
       body: "",
       type: "event",
-      start_date: "",
-      end_date: "",
+      start_date: undefined,
+      end_date: undefined,
     },
   });
 
   useEffect(() => {
     if (open) {
       if (announcement) {
-        const formatForInput = (date) =>
-          date ? new Date(date).toISOString().split("T")[0] : "";
         reset({
           ...announcement,
-          start_date: formatForInput(announcement.start_date),
-          end_date: formatForInput(announcement.end_date),
+          start_date: parseDate(announcement.start_date),
+          end_date: parseDate(announcement.end_date),
         });
       } else {
         reset({
           title: "",
           body: "",
           type: "event",
-          start_date: "",
-          end_date: "",
+          start_date: undefined,
+          end_date: undefined,
         });
       }
     }
   }, [announcement, open, reset]);
 
   const onSubmit = (formData) => {
+    // Format dates for API
+    const formatDate = (date) => {
+      if (!date) return null;
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
     const payload = {
       title: formData.title,
       body: formData.body,
       type: formData.type,
-      start_date: formData.start_date,
-      end_date: formData.end_date,
+      start_date: formatDate(formData.start_date),
+      end_date: formatDate(formData.end_date),
     };
 
     const mutationOptions = {
@@ -172,12 +196,19 @@ const AnnouncementFormDialog = ({ open, onClose, announcement }) => {
             </div>
             <div>
               <Label htmlFor="start_date">Start Date</Label>
-              <Input
-                id="start_date"
-                type="date"
-                {...register("start_date", {
-                  required: "Start date is required.",
-                })}
+              <Controller
+                name="start_date"
+                control={control}
+                rules={{ required: "Start date is required." }}
+                render={({ field }) => (
+                  <DatePickerComponent
+                    selected={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select start date"
+                    className="w-full"
+                  />
+                )}
               />
               {errors.start_date && (
                 <p className="text-sm text-red-500 mt-1">
@@ -187,10 +218,19 @@ const AnnouncementFormDialog = ({ open, onClose, announcement }) => {
             </div>
             <div>
               <Label htmlFor="end_date">End Date</Label>
-              <Input
-                id="end_date"
-                type="date"
-                {...register("end_date", { required: "End date is required." })}
+              <Controller
+                name="end_date"
+                control={control}
+                rules={{ required: "End date is required." }}
+                render={({ field }) => (
+                  <DatePickerComponent
+                    selected={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select end date"
+                    className="w-full"
+                  />
+                )}
               />
               {errors.end_date && (
                 <p className="text-sm text-red-500 mt-1">

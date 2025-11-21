@@ -21,19 +21,39 @@ import {
 import { bloodGroups } from "@/lib/constants";
 import PhoneInput from "react-phone-input-2";
 import { toast } from "sonner";
+import { DatePickerComponent } from "@/components/ui/date-picker";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const personalInfoSchema = z.object({
+  first_name: z.string().min(1, "First name is required"),
+  middle_name: z.string().optional(),
+  last_name: z.string().min(1, "Last name is required"),
+  date_of_birth: z.date().optional(),
+  gender: z.string().optional(),
+  marital_status: z.string().optional(),
+  blood_group: z.string().optional(),
+  personal_email: z.string().email("Invalid email format").optional(),
+  personal_phone_no: z.string().optional(),
+});
 
 export const PersonalInfoTab = ({ employee }) => {
   const { mutate: updatePersonalInfo, isPending } =
     useUpdateEmployeePersonalInfo();
+
+  // Helper function to convert date strings to Date objects
+  const parseDate = (dateValue) => {
+    if (!dateValue) return undefined;
+    if (dateValue instanceof Date) return dateValue;
+    return new Date(dateValue);
+  };
 
   // Get initial values from employee data
   const getInitialValues = () => ({
     first_name: employee?.profile?.first_name || "",
     middle_name: employee?.profile?.middle_name || "",
     last_name: employee?.profile?.last_name || "",
-    date_of_birth: employee?.profile?.date_of_birth
-      ? new Date(employee.profile.date_of_birth).toISOString().split("T")[0]
-      : "",
+    date_of_birth: parseDate(employee?.profile?.date_of_birth),
     gender: employee?.profile?.gender || "",
     marital_status: employee?.profile?.marital_status || "",
     blood_group: employee?.profile?.blood_group?.toUpperCase() || "",
@@ -42,7 +62,8 @@ export const PersonalInfoTab = ({ employee }) => {
   });
 
   // Initialize form with default values
-  const { register, handleSubmit, control, reset } = useForm({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm({
+    resolver: zodResolver(personalInfoSchema),
     defaultValues: getInitialValues(),
   });
 
@@ -55,6 +76,13 @@ export const PersonalInfoTab = ({ employee }) => {
   }, [employee, reset]);
 
   const onSubmit = (data) => {
+    // Format date for API
+    const formatDate = (date) => {
+      if (!date) return null;
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
     // The payload for the update API call
     const payload = {
       ...data,
@@ -62,6 +90,7 @@ export const PersonalInfoTab = ({ employee }) => {
       // so we ensure they are mapped correctly if the form names are different.
       email: data.personal_email,
       phone_no: data.personal_phone_no,
+      date_of_birth: formatDate(data.date_of_birth),
     };
 
     updatePersonalInfo(
@@ -104,11 +133,24 @@ export const PersonalInfoTab = ({ employee }) => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="date_of_birth">Date of Birth</Label>
-              <Input
-                id="date_of_birth"
-                type="date"
-                {...register("date_of_birth")}
+              <Controller
+                name="date_of_birth"
+                control={control}
+                render={({ field }) => (
+                  <DatePickerComponent
+                    selected={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select date of birth"
+                    className="w-full"
+                  />
+                )}
               />
+              {errors.date_of_birth && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.date_of_birth.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Gender</Label>

@@ -121,13 +121,12 @@ export const LeavePoliciesMaster = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingLeavePolicy, setEditingLeavePolicy] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const {
     data: leavePoliciesData,
     isLoading,
     isError,
-  } = useLeavePolicies(currentPage, pageSize);
+  } = useLeavePolicies(currentPage, 10);
   const { mutate: deleteLeavePolicy } = useDeleteLeavePolicy();
 
   const handleOpenDialog = (leavePolicy = null) => {

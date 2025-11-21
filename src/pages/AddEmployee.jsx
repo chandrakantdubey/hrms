@@ -18,35 +18,55 @@ const STEPS = [
   { number: 5, title: "Documents", icon: FileText },
 ];
 
-const StepSidebar = ({ currentStep, completedSteps, setStep }) => (
-  <nav className="flex flex-col gap-2">
-    {STEPS.map((step) => {
-      const isCompleted = completedSteps.includes(step.number);
-      const isCurrent = currentStep === step.number;
-      const isClickable = isCompleted || step.number === currentStep;
+const TopProgressBar = ({ currentStep, completedSteps }) => (
+  <div className="w-full mb-8">
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+      <div className="flex items-center justify-center gap-4 md:gap-6 overflow-x-auto pb-2 md:pb-0">
+        {STEPS.map((step, index) => {
+          const isCompleted = completedSteps.includes(step.number);
+          const isCurrent = currentStep === step.number;
 
-      return (
-        <button
-          key={step.number}
-          onClick={() => isClickable && setStep(step.number)}
-          disabled={!isClickable}
-          className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2 text-left text-muted-foreground transition-all hover:text-primary disabled:pointer-events-none disabled:opacity-50",
-            isCurrent && "bg-muted font-bold text-primary",
-            isCompleted && !isCurrent && "text-primary"
-          )}
-        >
-          <div className="relative">
-            <step.icon className="h-4 w-4" />
-            {isCompleted && (
-              <CheckCircle2 className="absolute -top-1 -right-1 h-3 w-3 text-green-500 bg-white rounded-full" />
-            )}
-          </div>
-          {step.title}
-        </button>
-      );
-    })}
-  </nav>
+          return (
+            <div key={step.number} className="flex items-center flex-shrink-0">
+              <div className="flex flex-col items-center group">
+                <div
+                  className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center text-base font-semibold transition-all duration-300 shadow-md relative",
+                    isCompleted && "bg-green-500 text-white shadow-green-200",
+                    isCurrent && "bg-primary text-primary-foreground ring-4 ring-primary/20 shadow-primary/30 scale-110",
+                    !isCompleted && !isCurrent && "bg-muted text-muted-foreground border-2 border-border group-hover:border-primary/30"
+                  )}
+                >
+                  {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : step.number}
+                  {isCurrent && (
+                    <div className="absolute -inset-1 bg-primary/20 rounded-full animate-pulse" />
+                  )}
+                </div>
+                <span className={cn(
+                  "text-sm mt-3 text-center max-w-[120px] leading-tight font-medium",
+                  isCurrent ? "text-primary" : isCompleted ? "text-green-600" : "text-muted-foreground"
+                )}>
+                  {step.title}
+                </span>
+                <div className={cn(
+                  "text-xs mt-1 px-2 py-1 rounded-full",
+                  isCurrent ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground"
+                )}>
+                  Step {step.number}
+                </div>
+              </div>
+              {index < STEPS.length - 1 && (
+                <div className={cn(
+                  "w-12 h-1 mx-4 rounded-full transition-all duration-500",
+                  isCompleted ? "bg-green-500" : "bg-muted"
+                )} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
 );
 
 export default function AddEmployee() {
@@ -178,40 +198,33 @@ export default function AddEmployee() {
 
   return (
     <div className="p-4 md:p-6 space-y-4">
-      <div className="grid gap-6 md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-        <div className="hidden border-r bg-muted/40 md:block">
-          <div className="flex h-full max-h-screen flex-col gap-2 p-4">
-            <StepSidebar
-              currentStep={currentStep}
-              completedSteps={completedSteps}
-              setStep={handleStepNavigation}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {STEPS.find((s) => s.number === currentStep)?.title}
-              </CardTitle>
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              )}
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  <span className="ml-2 text-muted-foreground">Loading...</span>
-                </div>
-              ) : (
-                renderStep()
-              )}
-            </CardContent>
-          </Card>
-        </div>
+      <TopProgressBar
+        currentStep={currentStep}
+        completedSteps={completedSteps}
+      />
+      <div className="flex flex-col">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {STEPS.find((s) => s.number === currentStep)?.title}
+            </CardTitle>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <span className="ml-2 text-muted-foreground">Loading...</span>
+              </div>
+            ) : (
+              renderStep()
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

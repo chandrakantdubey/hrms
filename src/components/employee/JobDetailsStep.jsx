@@ -25,10 +25,43 @@ import {
 import { toast } from "sonner";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePickerComponent } from "@/components/ui/date-picker";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const jobDetailsSchema = z.object({
+  company_id: z.string().min(1, "Company is required"),
+  department_id: z.string().min(1, "Department is required"),
+  designation_id: z.string().min(1, "Designation is required"),
+  employee_code: z.string().min(1, "Employee code is required"),
+  status: z.string().min(1, "Status is required"),
+  type: z.string().min(1, "Type is required"),
+  joining_date: z.date({ message: "Joining date is required" }),
+  confirmation_date: z.date().optional(),
+  resignation_date: z.date().optional(),
+  termination_date: z.date().optional(),
+  last_working_date: z.date().optional(),
+  reason_for_leaving: z.string().optional(),
+  office_email: z.string().email("Invalid email format").min(1, "Office email is required"),
+  office_phone_no: z.string().optional(),
+  leave_policy_id: z.string().min(1, "Leave policy is required"),
+  shift_id: z.string().min(1, "Shift is required"),
+  reporting_to: z.string().optional(),
+  roles: z.array(z.string()).min(1, "At least one role is required"),
+});
 
 export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialData = {} }) => {
   const { mutate: createJobDetails, isPending } = useCreateEmployeeJobDetails();
+
+  // Helper function to convert date strings to Date objects
+  const parseDate = (dateValue) => {
+    if (!dateValue) return undefined;
+    if (dateValue instanceof Date) return dateValue;
+    return new Date(dateValue);
+  };
+
   const { register, handleSubmit, control, watch, formState: { errors }, reset } = useForm({
+    resolver: zodResolver(jobDetailsSchema),
     defaultValues: {
       company_id: initialData.company_id || "",
       department_id: initialData.department_id || "",
@@ -36,11 +69,11 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
       employee_code: initialData.employee_code || "",
       status: initialData.status || "",
       type: initialData.type || "",
-      joining_date: initialData.joining_date || "",
-      confirmation_date: initialData.confirmation_date || "",
-      resignation_date: initialData.resignation_date || "",
-      termination_date: initialData.termination_date || "",
-      last_working_date: initialData.last_working_date || "",
+      joining_date: parseDate(initialData.joining_date),
+      confirmation_date: parseDate(initialData.confirmation_date),
+      resignation_date: parseDate(initialData.resignation_date),
+      termination_date: parseDate(initialData.termination_date),
+      last_working_date: parseDate(initialData.last_working_date),
       reason_for_leaving: initialData.reason_for_leaving || "",
       office_email: initialData.office_email || "",
       office_phone_no: initialData.office_phone_no || "",
@@ -152,6 +185,12 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
     }
 
     // Clean up the payload to send null for empty optional fields
+    const formatDate = (date) => {
+      if (!date) return null;
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
     const payload = {
       ...data,
       uuid,
@@ -162,17 +201,19 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
       shift_id: Number(data.shift_id),
       reporting_to: data.reporting_to ? Number(data.reporting_to) : null,
       roles: data.roles ? data.roles.map(Number) : [],
+      // Format dates for API
+      joining_date: formatDate(data.joining_date),
+      last_working_date: formatDate(data.last_working_date),
       // Ensure conditional dates are null if not provided
       confirmation_date:
-        data.status === "confirmed" ? data.confirmation_date : null,
+        data.status === "confirmed" ? formatDate(data.confirmation_date) : null,
       resignation_date:
-        data.status === "resigned" ? data.resignation_date : null,
+        data.status === "resigned" ? formatDate(data.resignation_date) : null,
       termination_date:
-        data.status === "terminated" ? data.termination_date : null,
+        data.status === "terminated" ? formatDate(data.termination_date) : null,
       reason_for_leaving: ["resigned", "terminated"].includes(data.status)
         ? data.reason_for_leaving
         : null,
-      last_working_date: data.last_working_date || null,
     };
 
     createJobDetails(payload, {
@@ -342,11 +383,19 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
 
         <div className="space-y-2">
           <Label>Joining Date</Label>
-          <Input
-            type="date"
-            {...register("joining_date", {
-              required: "Joining date is required.",
-            })}
+          <Controller
+            name="joining_date"
+            control={control}
+            rules={{ required: "Joining date is required." }}
+            render={({ field }) => (
+              <DatePickerComponent
+                selected={field.value}
+                onChange={(date) => field.onChange(date)}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select joining date"
+                className="w-full"
+              />
+            )}
           />
           {errors.joining_date && (
             <p className="text-sm text-red-500 mt-1">
@@ -359,12 +408,22 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
         {employmentStatus === "confirmed" && (
           <div className="space-y-2">
             <Label>Confirmation Date</Label>
-            <Input
-              type="date"
-              {...register("confirmation_date", {
+            <Controller
+              name="confirmation_date"
+              control={control}
+              rules={{
                 required:
                   "Confirmation date is required for 'Confirmed' status.",
-              })}
+              }}
+              render={({ field }) => (
+                <DatePickerComponent
+                  selected={field.value}
+                  onChange={(date) => field.onChange(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select confirmation date"
+                  className="w-full"
+                />
+              )}
             />
             {errors.confirmation_date && (
               <p className="text-sm text-red-500 mt-1">
@@ -376,11 +435,21 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
         {employmentStatus === "resigned" && (
           <div className="space-y-2">
             <Label>Resignation Date</Label>
-            <Input
-              type="date"
-              {...register("resignation_date", {
+            <Controller
+              name="resignation_date"
+              control={control}
+              rules={{
                 required: "Resignation date is required for 'Resigned' status.",
-              })}
+              }}
+              render={({ field }) => (
+                <DatePickerComponent
+                  selected={field.value}
+                  onChange={(date) => field.onChange(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select resignation date"
+                  className="w-full"
+                />
+              )}
             />
             {errors.resignation_date && (
               <p className="text-sm text-red-500 mt-1">
@@ -392,12 +461,22 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
         {employmentStatus === "terminated" && (
           <div className="space-y-2">
             <Label>Termination Date</Label>
-            <Input
-              type="date"
-              {...register("termination_date", {
+            <Controller
+              name="termination_date"
+              control={control}
+              rules={{
                 required:
                   "Termination date is required for 'Terminated' status.",
-              })}
+              }}
+              render={({ field }) => (
+                <DatePickerComponent
+                  selected={field.value}
+                  onChange={(date) => field.onChange(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select termination date"
+                  className="w-full"
+                />
+              )}
             />
             {errors.termination_date && (
               <p className="text-sm text-red-500 mt-1">
@@ -409,7 +488,19 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
         {["resigned", "terminated"].includes(employmentStatus) && (
           <div className="space-y-2">
             <Label>Last Working Date</Label>
-            <Input type="date" {...register("last_working_date")} />
+            <Controller
+              name="last_working_date"
+              control={control}
+              render={({ field }) => (
+                <DatePickerComponent
+                  selected={field.value}
+                  onChange={(date) => field.onChange(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select last working date"
+                  className="w-full"
+                />
+              )}
+            />
             {errors.last_working_date && (
               <p className="text-sm text-red-500 mt-1">
                 {errors.last_working_date.message}

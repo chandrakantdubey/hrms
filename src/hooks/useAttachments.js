@@ -1,5 +1,5 @@
 import api from "@/services/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const uploadAttachment = (file) => {
   const formData = new FormData();
@@ -18,8 +18,6 @@ export const getAttachmentById = (attachmentId) =>
   api.get(`/attachments/${attachmentId}`).then((res) => res.data);
 
 export const useUploadAttachment = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: uploadAttachment,
     onSuccess: () => {

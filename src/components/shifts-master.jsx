@@ -140,13 +140,12 @@ export const ShiftsMaster = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingShift, setEditingShift] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const {
     data: shiftsData,
     isLoading,
     isError,
-  } = useShifts(currentPage, pageSize);
+  } = useShifts(currentPage, 10);
   const { mutate: deleteShift } = useDeleteShift();
 
   const handleOpenDialog = (shift = null) => {

@@ -82,8 +82,12 @@ export const useDashboardOverview = () =>
 export const useUserProfile = () =>
   useQuery({ queryKey: ["user", "profile"], queryFn: getUserProfile });
 
-export const useUserPayrolls = () =>
-  useQuery({ queryKey: ["user", "payrolls"], queryFn: getUserPayrolls });
+export const useUserPayrolls = ({ page = 1, limit = 10 }) =>
+  useQuery({
+    queryKey: ["user", "payrolls", page, limit],
+    queryFn: () => getUserPayrolls({ page, limit }),
+    keepPreviousData: true,
+  });
 
 export const useUserPayrollById = (payrollId) =>
   useQuery({

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { DatePickerComponent } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,10 +34,10 @@ const leaveRequestFormSchema = z.object({
   leave_type_id: z.number({
     required_error: "Leave Type is required",
   }),
-  start_date: z.string().min(1, { message: "Start Date is required." }),
+  start_date: z.date({ message: "Start Date is required." }),
   start_is_half_day: z.boolean().default(false),
   start_half: z.string().optional().nullable(),
-  end_date: z.string().min(1, { message: "End Date is required." }),
+  end_date: z.date({ message: "End Date is required." }),
   end_is_half_day: z.boolean().default(false),
   end_half: z.string().optional().nullable(),
   reason: z.string().min(1, { message: "Reason is required." }),
@@ -48,14 +49,9 @@ export const LeaveRequestModal = ({
   leaveRequest,
   onSuccess,
 }) => {
-  const { data: leaveTypesData, isLoading: isLeavesTypeLoading } =
-    useLeaveTypes();
+  const { data: leaveTypesData } = useLeaveTypes();
 
-  const {
-    data: dashboardStats,
-    isLoading: isDashboardStatLoading,
-    isError: isDashboardStatError,
-  } = useDashboardOverview();
+  const { data: dashboardStats } = useDashboardOverview();
 
   const leave_balance = dashboardStats?.data.leave_balance || 0;
 
@@ -68,10 +64,10 @@ export const LeaveRequestModal = ({
     resolver: zodResolver(leaveRequestFormSchema),
     defaultValues: {
       leave_type_id: leaveRequest?.leave_type_id || undefined,
-      start_date: leaveRequest?.start_date || "",
+      start_date: leaveRequest?.start_date ? new Date(leaveRequest.start_date) : undefined,
       start_is_half_day: leaveRequest?.start_is_half_day || false,
       start_half: leaveRequest?.start_half || null,
-      end_date: leaveRequest?.end_date || "",
+      end_date: leaveRequest?.end_date ? new Date(leaveRequest.end_date) : undefined,
       end_is_half_day: leaveRequest?.end_is_half_day || false,
       end_half: leaveRequest?.end_half || null,
       reason: leaveRequest?.reason || "",
@@ -82,10 +78,10 @@ export const LeaveRequestModal = ({
     if (leaveRequest) {
       form.reset({
         leave_type_id: leaveRequest.leave_type_id,
-        start_date: leaveRequest.start_date,
+        start_date: new Date(leaveRequest.start_date),
         start_is_half_day: leaveRequest.start_is_half_day,
         start_half: leaveRequest.start_half || null,
-        end_date: leaveRequest.end_date,
+        end_date: new Date(leaveRequest.end_date),
         end_is_half_day: leaveRequest.end_is_half_day,
         end_half: leaveRequest.end_half || null,
         reason: leaveRequest.reason,
@@ -93,10 +89,10 @@ export const LeaveRequestModal = ({
     } else {
       form.reset({
         leave_type_id: undefined,
-        start_date: "",
+        start_date: undefined,
         start_is_half_day: false,
         start_half: null,
-        end_date: "",
+        end_date: undefined,
         end_is_half_day: false,
         end_half: null,
         reason: "",
@@ -105,8 +101,16 @@ export const LeaveRequestModal = ({
   }, [leaveRequest, form, isOpen]);
 
   const handleSubmit = (values) => {
+    const formatDate = (date) => {
+      if (!date) return "";
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
     const payload = {
       ...values,
+      start_date: formatDate(values.start_date),
+      end_date: formatDate(values.end_date),
       start_half: values.start_is_half_day ? values.start_half : null,
       end_half: values.end_is_half_day ? values.end_half : null,
     };
@@ -143,7 +147,7 @@ export const LeaveRequestModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto glass">
         <DialogHeader>
           <DialogTitle>
             {leaveRequest ? "Edit Leave Request" : "Create Leave Request"}
@@ -193,11 +197,18 @@ export const LeaveRequestModal = ({
           )}
           <div className="grid grid-cols-2 items-center gap-4">
             <Label htmlFor="start_date">Start Date</Label>
-            <Input
-              id="start_date"
-              type="date"
-              {...form.register("start_date")}
-              className=""
+            <Controller
+              name="start_date"
+              control={form.control}
+              render={({ field }) => (
+                <DatePickerComponent
+                  id="start_date"
+                  selected={field.value}
+                  onChange={(date) => field.onChange(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select start date"
+                />
+              )}
             />
             {form.formState.errors.start_date && (
               <p className=" col-start-2 text-left text-sm text-red-500">
@@ -237,11 +248,18 @@ export const LeaveRequestModal = ({
           )}
           <div className="grid grid-cols-2 items-center gap-4">
             <Label htmlFor="end_date">End Date</Label>
-            <Input
-              id="end_date"
-              type="date"
-              {...form.register("end_date")}
-              className=""
+            <Controller
+              name="end_date"
+              control={form.control}
+              render={({ field }) => (
+                <DatePickerComponent
+                  id="end_date"
+                  selected={field.value}
+                  onChange={(date) => field.onChange(date)}
+                  dateFormat="yyyy-MM-dd"
+                  placeholderText="Select end date"
+                />
+              )}
             />
             {form.formState.errors.end_date && (
               <p className=" col-start-2 text-left text-sm text-red-500">

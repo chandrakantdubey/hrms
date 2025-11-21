@@ -16,10 +16,33 @@ import { isValidIndianPhoneNumber } from "@/lib/phoneValidation";
 import PhoneInput from "react-phone-input-2";
 // import "react-phone-input-2/lib/style.css";
 import { toast } from "sonner";
+import { DatePickerComponent } from "@/components/ui/date-picker";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const personalInfoSchema = z.object({
+  first_name: z.string().min(1, "First name is required").min(2, "First name must be at least 2 characters").max(50, "First name must be less than 50 characters").regex(/^[A-Za-z\s]+$/, "First name can only contain letters and spaces"),
+  middle_name: z.string().optional(),
+  last_name: z.string().min(1, "Last name is required").min(2, "Last name must be at least 2 characters").max(50, "Last name must be less than 50 characters").regex(/^[A-Za-z\s]+$/, "Last name can only contain letters and spaces"),
+  date_of_birth: z.date({ message: "Date of birth is required" }),
+  gender: z.string().min(1, "Gender is required"),
+  marital_status: z.string().min(1, "Marital status is required"),
+  blood_group: z.string().optional(),
+  personal_email: z.string().email("Please enter a valid email address").min(1, "Personal email is required"),
+  personal_phone_no: z.string().min(1, "Personal phone number is required"),
+});
 
 export const PersonalInfoStep = ({ onSuccess, onError, initialData = {} }) => {
   const { mutate: createPersonalInfo, isPending } =
     useCreateEmployeePersonalInfo();
+
+  // Helper function to convert date strings to Date objects
+  const parseDate = (dateValue) => {
+    if (!dateValue) return undefined;
+    if (dateValue instanceof Date) return dateValue;
+    return new Date(dateValue);
+  };
+
   const {
     register,
     handleSubmit,
@@ -27,11 +50,12 @@ export const PersonalInfoStep = ({ onSuccess, onError, initialData = {} }) => {
     formState: { errors },
     reset,
   } = useForm({
+    resolver: zodResolver(personalInfoSchema),
     defaultValues: {
       first_name: initialData.first_name || "",
       middle_name: initialData.middle_name || "",
       last_name: initialData.last_name || "",
-      date_of_birth: initialData.date_of_birth || "",
+      date_of_birth: parseDate(initialData.date_of_birth),
       gender: initialData.gender || "",
       marital_status: initialData.marital_status || "",
       blood_group: initialData.blood_group || "",
@@ -59,15 +83,28 @@ export const PersonalInfoStep = ({ onSuccess, onError, initialData = {} }) => {
       return;
     }
 
-    createPersonalInfo(data, {
+    // Format date for API
+    const formatDate = (date) => {
+      if (!date) return null;
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
+    const payload = {
+      ...data,
+      date_of_birth: formatDate(data.date_of_birth),
+    };
+
+    createPersonalInfo(payload, {
       onSuccess: (response) => {
-        toast.success("Personal info saved successfully!");
-        onSuccess(response.data.uuid, data);
+        toast.success("Personal information saved!");
+        onSuccess(response);
       },
       onError: (err) => {
-        const errorMessage = err.response?.data?.message || "Failed to save personal info.";
-        toast.error(errorMessage);
-        if (onError) onError(errorMessage);
+        toast.error(
+          err.response?.data?.message || "Failed to save personal information."
+        );
+        onError?.(err);
       },
     });
   };
@@ -126,23 +163,20 @@ export const PersonalInfoStep = ({ onSuccess, onError, initialData = {} }) => {
         </div>
         <div className="space-y-2">
           <Label htmlFor="date_of_birth">Date of Birth</Label>
-          <Input
-            id="date_of_birth"
-            type="date"
-            {...register("date_of_birth", {
-              required: "Date of birth is required",
-              validate: (value) => {
-                const dob = new Date(value);
-                const today = new Date();
-                const minDate = new Date();
-                minDate.setFullYear(minDate.getFullYear() - 18);
-
-                if (dob > today) return "Date of birth cannot be in the future";
-                if (dob > minDate) return "Employee must be at least 18 years old";
-                return true;
-              }
-            })}
-            max={minDateOfBirth.toISOString().split('T')[0]}
+          <Controller
+            name="date_of_birth"
+            control={control}
+            rules={{ required: "Date of birth is required" }}
+            render={({ field }) => (
+              <DatePickerComponent
+                selected={field.value}
+                onChange={(date) => field.onChange(date)}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select date of birth"
+                className="w-full"
+                maxDate={minDateOfBirth}
+              />
+            )}
           />
           {errors.date_of_birth && (
             <p className="text-sm text-red-500 mt-1">

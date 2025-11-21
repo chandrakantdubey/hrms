@@ -126,13 +126,12 @@ export const PermissionsMaster = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingPermission, setEditingPermission] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10); // Or your preferred default
 
   const {
     data: permissionsData,
     isLoading,
     isError,
-  } = usePermissions(currentPage, pageSize);
+  } = usePermissions(currentPage, 10);
   const { mutate: deletePermission } = useDeletePermission();
 
   const handleOpenDialog = (permission = null) => {

@@ -9,24 +9,19 @@ export default function MainLayout() {
     <PageTitleProvider>
       <SidebarProvider
         style={{
-          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--sidebar-width": "14rem",
+          "--sidebar-width-icon": "3rem",
           "--header-height": "calc(var(--spacing) * 12)",
         }}
       >
         <AppSidebar variant="inset" />
-        <SidebarInset>
+        <SidebarInset className="glass">
           <SiteHeader />
-          <div
-            className="flex flex-1 
-      flex-col"
-          >
-            <div
-              className="@container/main 
-      flex flex-1 flex-col gap-2"
-            >
+          <main className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="mx-auto w-full max-w-screen-xl">
               <Outlet />
             </div>
-          </div>
+          </main>
         </SidebarInset>
       </SidebarProvider>
     </PageTitleProvider>
