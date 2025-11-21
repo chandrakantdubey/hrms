@@ -35,6 +35,10 @@ const personalInfoSchema = z.object({
   blood_group: z.string().optional(),
   personal_email: z.string().email("Invalid email format").optional(),
   personal_phone_no: z.string().optional(),
+  qualification: z.string().optional(),
+  father_name: z.string().optional(),
+  mother_name: z.string().optional(),
+  spouse_name: z.string().optional(),
 });
 
 export const PersonalInfoTab = ({ employee }) => {
@@ -59,6 +63,10 @@ export const PersonalInfoTab = ({ employee }) => {
     blood_group: employee?.profile?.blood_group?.toUpperCase() || "",
     personal_email: employee?.email || "",
     personal_phone_no: employee?.phone_no || "",
+    qualification: employee?.profile?.qualification || "",
+    father_name: employee?.profile?.father_name || "",
+    mother_name: employee?.profile?.mother_name || "",
+    spouse_name: employee?.profile?.spouse_name || "",
   });
 
   // Initialize form with default values
@@ -254,6 +262,22 @@ export const PersonalInfoTab = ({ employee }) => {
                   />
                 )}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="qualification">Qualification</Label>
+              <Input id="qualification" {...register("qualification")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="father_name">Father Name</Label>
+              <Input id="father_name" {...register("father_name")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mother_name">Mother Name</Label>
+              <Input id="mother_name" {...register("mother_name")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="spouse_name">Spouse Name</Label>
+              <Input id="spouse_name" {...register("spouse_name")} />
             </div>
           </div>
 

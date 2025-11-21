@@ -66,7 +66,7 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
       company_id: initialData.company_id || "",
       department_id: initialData.department_id || "",
       designation_id: initialData.designation_id || "",
-      employee_code: initialData.employee_code || "",
+      employee_code: String(initialData.employee_code || ""),
       status: initialData.status || "",
       type: initialData.type || "",
       joining_date: parseDate(initialData.joining_date),
@@ -91,7 +91,7 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
         company_id: initialData.company_id || "",
         department_id: initialData.department_id || "",
         designation_id: initialData.designation_id || "",
-        employee_code: initialData.employee_code || "",
+        employee_code: String(initialData.employee_code || ""),
         status: initialData.status || "",
         type: initialData.type || "",
         joining_date: initialData.joining_date || "",
@@ -193,7 +193,8 @@ export const JobDetailsStep = ({ uuid, onSuccess, onBack, stepNumber, initialDat
 
     const payload = {
       ...data,
-      uuid,
+      uuid: uuid?.data?.uuid,
+      employee_code: Number(data.employee_code),
       company_id: Number(data.company_id),
       department_id: Number(data.department_id),
       designation_id: Number(data.designation_id),

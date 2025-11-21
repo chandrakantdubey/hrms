@@ -107,7 +107,7 @@ export const ContactInfoStep = ({ uuid, onSuccess, stepNumber, initialData = {} 
     };
 
     createContactInfo(
-      { uuid, ...cleanedData },
+      { uuid: uuid?.data?.uuid, ...cleanedData },
       {
         onSuccess: () => {
           toast.success("Contact info saved successfully!");

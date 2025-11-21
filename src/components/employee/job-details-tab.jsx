@@ -69,7 +69,7 @@ export const JobDetailsTab = ({ employee }) => {
 
   // Get initial values from employee data
   const getInitialValues = () => ({
-    employee_code: employment?.code || "",
+    employee_code: String(employment?.code || ""),
     company_id: String(employment?.company?.id || ""),
     department_id: String(employment?.department?.id || ""),
     designation_id: String(employment?.designation?.id || ""),
@@ -124,13 +124,14 @@ export const JobDetailsTab = ({ employee }) => {
 
     const payload = {
       ...data,
+      employee_code: Number(data.employee_code),
       company_id: Number(data.company_id),
       department_id: Number(data.department_id),
       designation_id: Number(data.designation_id),
       leave_policy_id: Number(data.leave_policy_id),
       shift_id: Number(data.shift_id),
       reporting_to: data.reporting_to ? Number(data.reporting_to) : null,
-      roles: data.roles || [],
+      roles: data.roles ? data.roles.map(Number) : [],
       joining_date: formatDate(data.joining_date),
       last_working_date: formatDate(data.last_working_date),
       // Ensure conditional dates are null if not provided

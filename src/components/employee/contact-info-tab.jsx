@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useUpdateEmployeeContactInfo } from "@/hooks/useEmployees";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { indianStates } from "@/lib/constants";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 
 export const ContactInfoTab = ({ employee }) => {
   const { mutate: updateContactInfo, isPending } =
@@ -32,7 +33,15 @@ export const ContactInfoTab = ({ employee }) => {
       state: employee?.profile?.state || "",
       country: employee?.profile?.country || "",
       postal_code: employee?.profile?.postal_code || "",
+      emergency_contact: employee?.profile?.emergency_contact || [
+        { name: "", type: "phone", value: "", relationship: "" },
+      ],
     },
+  });
+
+  const { fields, append, remove, replace } = useFieldArray({
+    control,
+    name: "emergency_contact",
   });
 
   // Reset form when employee data changes
@@ -44,13 +53,28 @@ export const ContactInfoTab = ({ employee }) => {
         state: employee.profile?.state || "",
         country: employee.profile?.country || "",
         postal_code: employee.profile?.postal_code || "",
+        emergency_contact: employee.profile?.emergency_contact || [
+          { name: "", type: "phone", value: "", relationship: "" },
+        ],
       });
+      // Replace the emergency contacts array
+      if (employee.profile?.emergency_contact && employee.profile.emergency_contact.length > 0) {
+        replace(employee.profile.emergency_contact);
+      }
     }
-  }, [employee, reset]);
+  }, [employee, reset, replace]);
 
   const onSubmit = (data) => {
+    // Filter out emergency contacts where the name is empty
+    const cleanedData = {
+      ...data,
+      emergency_contact: data.emergency_contact.filter(
+        (contact) => contact.name && contact.name.trim() !== ""
+      ),
+    };
+
     updateContactInfo(
-      { employeeId: employee.id, data },
+      { employeeId: employee.id, data: cleanedData },
       {
         onSuccess: () => toast.success("Contact info updated successfully!"),
         onError: (err) =>
@@ -113,6 +137,72 @@ export const ContactInfoTab = ({ employee }) => {
               />
             </div>
           </div>
+
+          <div>
+            <Label>Emergency Contacts</Label>
+            <div className="space-y-3 mt-2">
+              {fields.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="grid grid-cols-1 sm:grid-cols-10 gap-2 items-center p-4 border rounded-lg bg-muted/50"
+                >
+                  <Input
+                    placeholder="Name"
+                    {...register(`emergency_contact.${index}.name`)}
+                    className="col-span-10 sm:col-span-3"
+                  />
+                  <Controller
+                    name={`emergency_contact.${index}.type`}
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger className="col-span-10 sm:col-span-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="phone">Phone</SelectItem>
+                          <SelectItem value="email">Email</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <Input
+                    placeholder="Contact Value (Phone or Email)"
+                    {...register(`emergency_contact.${index}.value`)}
+                    className="col-span-10 sm:col-span-3"
+                  />
+                  <Input
+                    placeholder="Relationship"
+                    {...register(`emergency_contact.${index}.relationship`)}
+                    className="col-span-10 sm:col-span-2"
+                  />
+                  <div className="col-span-10 sm:col-span-1 flex justify-end">
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  append({ name: "", type: "phone", value: "", relationship: "" })
+                }
+              >
+                Add Another Contact
+              </Button>
+            </div>
+          </div>
+
           <div className="flex justify-end pt-4">
             <Button type="submit" disabled={isPending}>
               {isPending ? "Saving..." : "Save Changes"}

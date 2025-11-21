@@ -30,6 +30,10 @@ const personalInfoSchema = z.object({
   blood_group: z.string().optional(),
   personal_email: z.string().email("Please enter a valid email address").min(1, "Personal email is required"),
   personal_phone_no: z.string().min(1, "Personal phone number is required"),
+  qualification: z.string().optional(),
+  father_name: z.string().optional(),
+  mother_name: z.string().optional(),
+  spouse_name: z.string().optional(),
 });
 
 export const PersonalInfoStep = ({ onSuccess, onError, initialData = {} }) => {
@@ -61,6 +65,10 @@ export const PersonalInfoStep = ({ onSuccess, onError, initialData = {} }) => {
       blood_group: initialData.blood_group || "",
       personal_email: initialData.personal_email || "",
       personal_phone_no: initialData.personal_phone_no || "",
+      qualification: initialData.qualification || "",
+      father_name: initialData.father_name || "",
+      mother_name: initialData.mother_name || "",
+      spouse_name: initialData.spouse_name || "",
     }
   });
 
@@ -324,6 +332,34 @@ export const PersonalInfoStep = ({ onSuccess, onError, initialData = {} }) => {
               {errors.personal_phone_no.message}
             </p>
           )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="qualification">Qualification</Label>
+          <Input
+            id="qualification"
+            {...register("qualification")}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="father_name">Father Name</Label>
+          <Input
+            id="father_name"
+            {...register("father_name")}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="mother_name">Mother Name</Label>
+          <Input
+            id="mother_name"
+            {...register("mother_name")}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="spouse_name">Spouse Name</Label>
+          <Input
+            id="spouse_name"
+            {...register("spouse_name")}
+          />
         </div>
       </div>
       <div className="flex justify-end pt-6">
